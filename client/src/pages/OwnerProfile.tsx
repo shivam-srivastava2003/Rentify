@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import FlashMessage from '../components/FlashMessage';
 import type { FlashType } from '../components/FlashMessage';
-import { User, Phone, MessageSquare, Mail, MapPin, Building2, Save, Edit3, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { User, Phone, MessageSquare, Mail, MapPin, Building2, Save, Edit3, ShieldCheck, CheckCircle2, Settings as SettingsIcon } from 'lucide-react';
 
 const OwnerProfile: React.FC = () => {
   const { currentUser, updateUser } = useAuth();
@@ -69,20 +70,30 @@ const OwnerProfile: React.FC = () => {
             </p>
           </div>
 
-          <button
-            onClick={() => {
-              setIsEditing(!isEditing);
-              setFlash(null);
-            }}
-            className={`inline-flex items-center gap-2 font-bold text-xs px-5 py-3 rounded-2xl shadow-md transition-all ${
-              isEditing
-                ? 'bg-slate-200 text-slate-700 hover:bg-slate-300'
-                : 'bg-teal-600 hover:bg-teal-700 text-white shadow-teal-600/20'
-            }`}
-          >
-            <Edit3 className="w-4 h-4" />
-            <span>{isEditing ? 'Cancel Editing' : 'Edit Profile Details'}</span>
-          </button>
+          <div className="flex items-center gap-3">
+            <Link
+              to="/owner/settings"
+              className="inline-flex items-center gap-2 font-bold text-xs px-5 py-3 rounded-2xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 shadow-sm transition-all"
+            >
+              <SettingsIcon className="w-4 h-4 text-teal-600" />
+              <span>Settings & Password</span>
+            </Link>
+
+            <button
+              onClick={() => {
+                setIsEditing(!isEditing);
+                setFlash(null);
+              }}
+              className={`inline-flex items-center gap-2 font-bold text-xs px-5 py-3 rounded-2xl shadow-md transition-all ${
+                isEditing
+                  ? 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+                  : 'bg-teal-600 hover:bg-teal-700 text-white shadow-teal-600/20'
+              }`}
+            >
+              <Edit3 className="w-4 h-4" />
+              <span>{isEditing ? 'Cancel Editing' : 'Edit Profile Details'}</span>
+            </button>
+          </div>
         </div>
 
         {/* Flash Alert Notification */}

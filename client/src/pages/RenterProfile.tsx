@@ -3,7 +3,8 @@ import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import FlashMessage from '../components/FlashMessage';
 import type { FlashType } from '../components/FlashMessage';
-import { User, Mail, Phone, MapPin, Upload, Camera, Save, RefreshCw, Sparkles } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { User, Mail, Phone, MapPin, Upload, Camera, Save, RefreshCw, Sparkles, Settings as SettingsIcon } from 'lucide-react';
 
 const RenterProfile: React.FC = () => {
   const { currentUser, updateUser } = useAuth();
@@ -131,16 +132,26 @@ const RenterProfile: React.FC = () => {
               />
             </div>
 
-            <div className="text-center sm:text-left">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-teal-700/60 rounded-full text-xs font-semibold text-teal-200 mb-2">
-                <Sparkles className="w-3.5 h-3.5 text-amber-400" /> Tenant Account Verified
+            <div className="flex-1 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="text-center sm:text-left">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-teal-700/60 rounded-full text-xs font-semibold text-teal-200 mb-2">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-400" /> Tenant Account Verified
+                </div>
+                <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">{name || 'Renter Profile'}</h1>
+                <p className="text-teal-200 text-xs mt-1 flex items-center justify-center sm:justify-start gap-3">
+                  <span>📧 {email}</span>
+                  <span>•</span>
+                  <span>Role: Renter / Tenant</span>
+                </p>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">{name || 'Renter Profile'}</h1>
-              <p className="text-teal-200 text-xs mt-1 flex items-center justify-center sm:justify-start gap-3">
-                <span>📧 {email}</span>
-                <span>•</span>
-                <span>Role: Renter / Tenant</span>
-              </p>
+
+              <Link
+                to="/user/settings"
+                className="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white font-bold text-xs px-4 py-3 rounded-2xl border border-white/20 backdrop-blur-md transition-all shadow-md shrink-0"
+              >
+                <SettingsIcon className="w-4 h-4 text-amber-300" />
+                <span>Account Settings & Password</span>
+              </Link>
             </div>
           </div>
         </div>

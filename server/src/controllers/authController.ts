@@ -243,3 +243,45 @@ export const updateUserProfile = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: error.message || 'Internal Server Error' });
   }
 };
+
+// @desc    Change user password securely
+// @route   PUT /api/auth/change-password
+// @access  Private
+export const changePassword = async (req: Request, res: Response) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      res.status(400).json({ success: false, message: 'Please provide both current and new password.' });
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      res.status(400).json({ success: false, message: 'New password must be at least 6 characters long.' });
+      return;
+    }
+
+    const user = (await User.findById(req.user._id)) as any;
+
+    if (!user) {
+      res.status(404).json({ success: false, message: 'User not found' });
+      return;
+    }
+
+    const isMatch = await user.matchPassword(currentPassword);
+    if (!isMatch) {
+      res.status(400).json({ success: false, message: 'Incorrect current password. Please try again.' });
+      return;
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Password updated successfully! Please use your new password for future logins.',
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message || 'Internal Server Error' });
+  }
+};

@@ -13,6 +13,7 @@ import OwnerDashboard from '../pages/dashboards/OwnerDashboard';
 import AdminDashboard from '../pages/dashboards/AdminDashboard';
 import PropertyDetails from '../pages/PropertyDetails';
 import RenterProfile from '../pages/RenterProfile';
+import Settings from '../pages/Settings';
 import ProtectedRoute from './ProtectedRoute';
 import { useAuth } from '../context/AuthContext';
 
@@ -87,6 +88,7 @@ const AppRoutes: React.FC = () => {
         <Route element={<ProtectedRoute allowedRoles={['USER']} />}>
           <Route path="user/dashboard" element={<UserDashboard />} />
           <Route path="user/profile" element={<RenterProfile />} />
+          <Route path="user/settings" element={<Settings />} />
         </Route>
 
         {/* Owner Routes */}
@@ -94,6 +96,12 @@ const AppRoutes: React.FC = () => {
           <Route path="owner/dashboard" element={<OwnerDashboard />} />
           <Route path="owner/properties" element={<OwnerProperties />} />
           <Route path="owner/profile" element={<OwnerProfile />} />
+          <Route path="owner/settings" element={<Settings />} />
+        </Route>
+
+        {/* Generic Authenticated Settings Route */}
+        <Route element={<ProtectedRoute allowedRoles={['USER', 'OWNER', 'ADMIN']} />}>
+          <Route path="settings" element={<Settings />} />
         </Route>
 
         {/* Admin Routes */}
