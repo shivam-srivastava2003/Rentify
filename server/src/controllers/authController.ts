@@ -285,3 +285,74 @@ export const changePassword = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: error.message || 'Internal Server Error' });
   }
 };
+
+// @desc    Verify if email exists for password reset
+// @route   POST /api/auth/verify-reset-email
+// @access  Public
+export const verifyResetEmail = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      res.status(400).json({ success: false, message: 'Please provide your email address.' });
+      return;
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    const user = await User.findOne({ email: { $regex: new RegExp(`^${cleanEmail}$`, 'i') } });
+
+    if (!user) {
+      res.status(404).json({
+        success: false,
+        message: 'No account found with this email address. Please check your email or register.',
+      });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Email address verified successfully!',
+      email: cleanEmail,
+      userName: user.name,
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message || 'Internal Server Error' });
+  }
+};
+
+// @desc    Reset password after email verification
+// @route   POST /api/auth/reset-password
+// @access  Public
+export const resetPassword = async (req: Request, res: Response) => {
+  try {
+    const { email, newPassword } = req.body;
+
+    if (!email || !newPassword) {
+      res.status(400).json({ success: false, message: 'Please provide email and new password.' });
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      res.status(400).json({ success: false, message: 'New password must be at least 6 characters long.' });
+      return;
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    const user = (await User.findOne({ email: { $regex: new RegExp(`^${cleanEmail}$`, 'i') } })) as any;
+
+    if (!user) {
+      res.status(404).json({ success: false, message: 'No account found with this email address.' });
+      return;
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Password reset successfully! You can now sign in with your new password.',
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message || 'Internal Server Error' });
+  }
+};

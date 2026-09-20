@@ -5,11 +5,12 @@ import { useAuth } from '../context/AuthContext';
 import Logo from '../components/Logo';
 import FlashMessage from '../components/FlashMessage';
 import type { FlashType } from '../components/FlashMessage';
-import { ShieldAlert, Lock, Mail, ArrowRight, KeyRound } from 'lucide-react';
+import { ShieldAlert, Lock, Mail, ArrowRight, KeyRound, Eye, EyeOff } from 'lucide-react';
 
 const AdminLogin: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [flash, setFlash] = useState<{ type: FlashType; message: string } | null>(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -114,13 +115,21 @@ const AdminLogin: React.FC = () => {
                   <Lock className="w-4 h-4" />
                 </div>
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   required
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all placeholder:text-slate-500"
+                  className="w-full pl-10 pr-11 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all placeholder:text-slate-500"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-1"
+                  title={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
             </div>
 

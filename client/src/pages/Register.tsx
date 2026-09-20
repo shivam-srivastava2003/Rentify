@@ -6,10 +6,12 @@ import Logo from '../components/Logo';
 import FlashMessage from '../components/FlashMessage';
 import type { FlashType } from '../components/FlashMessage';
 import heroImg from '../assets/hero.jpg';
-import { User, Building, Lock, Mail, Phone, Building2, CheckCircle2, ArrowRight, ShieldCheck } from 'lucide-react';
+import { User, Building, Lock, Mail, Phone, Building2, CheckCircle2, ArrowRight, ShieldCheck, Eye, EyeOff } from 'lucide-react';
 
 const Register: React.FC = () => {
   const [role, setRole] = useState<'USER' | 'OWNER'>('USER');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -338,14 +340,22 @@ const Register: React.FC = () => {
                       <Lock className="w-4 h-4" />
                     </div>
                     <input
-                      type="password"
+                      type={showPassword ? 'text' : 'password'}
                       name="password"
                       required
                       placeholder="••••••••"
                       value={formData.password}
                       onChange={handleChange}
-                      className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600 focus:bg-white transition-all"
+                      className="w-full pl-10 pr-11 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600 focus:bg-white transition-all"
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
+                      title={showPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
                   </div>
                 </div>
 
@@ -356,14 +366,22 @@ const Register: React.FC = () => {
                       <Lock className="w-4 h-4" />
                     </div>
                     <input
-                      type="password"
+                      type={showConfirmPassword ? 'text' : 'password'}
                       name="confirmPassword"
                       required
                       placeholder="••••••••"
                       value={formData.confirmPassword}
                       onChange={handleChange}
-                      className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600 focus:bg-white transition-all"
+                      className="w-full pl-10 pr-11 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600 focus:bg-white transition-all"
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
+                      title={showConfirmPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
                   </div>
                 </div>
               </div>
