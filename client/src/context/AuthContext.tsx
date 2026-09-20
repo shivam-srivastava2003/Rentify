@@ -23,7 +23,7 @@ interface AuthContextType {
   currentUser: User | null;
   isAuthenticated: boolean;
   role: Role;
-  login: (user: User) => void;
+  login: (user: User, token?: string) => void;
   logout: () => void;
   updateUser: (user: User) => void;
   isLoading: boolean;
@@ -31,13 +31,25 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Set default axios configuration
+axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || 'https://rentify-backend-wgze.onrender.com/api';
+axios.defaults.withCredentials = true; // For cookies
+
+// Add request interceptor to attach Bearer token from localStorage to every outgoing API call
+axios.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('rentify_token');
+    if (token && config.headers) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-
-  // Set default axios configuration
-  axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
-  axios.defaults.withCredentials = true; // For cookies
 
   useEffect(() => {
     const fetchMe = async () => {
@@ -47,6 +59,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setCurrentUser(response.data.data);
         }
       } catch (error) {
+        localStorage.removeItem('rentify_token');
         setCurrentUser(null);
       } finally {
         setIsLoading(false);
@@ -56,7 +69,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     fetchMe();
   }, []);
 
-  const login = (user: User) => {
+  const login = (user: User, token?: string) => {
+    if (token) {
+      localStorage.setItem('rentify_token', token);
+    }
     setCurrentUser(user);
   };
 
@@ -70,6 +86,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (error) {
       console.error('Logout failed', error);
     } finally {
+      localStorage.removeItem('rentify_token');
       setCurrentUser(null);
     }
   };

@@ -72,7 +72,7 @@ const Register: React.FC = () => {
 
       if (response.data.success) {
         const user = response.data.data;
-        login(user);
+        login(user, response.data.token);
         setFlash({ type: 'success', message: response.data.message || 'Account created successfully!' });
 
         setTimeout(() => {

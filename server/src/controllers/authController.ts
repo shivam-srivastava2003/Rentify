@@ -62,9 +62,10 @@ export const registerUser = async (req: Request, res: Response) => {
     });
 
     if (user) {
-      generateToken(res, user._id.toString());
+      const token = generateToken(res, user._id.toString());
       res.status(201).json({
         success: true,
+        token,
         message: 'Account created successfully! Welcome to Rentify.',
         data: {
           _id: user._id,
@@ -122,9 +123,10 @@ export const loginUser = async (req: Request, res: Response) => {
     }
 
     if (user && (await user.matchPassword(password))) {
-      generateToken(res, user._id.toString());
+      const token = generateToken(res, user._id.toString());
       res.status(200).json({
         success: true,
+        token,
         message: 'Welcome back! Login successful.',
         data: {
           _id: user._id,
