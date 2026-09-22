@@ -309,3 +309,78 @@ export const deleteProperty = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: error.message || 'Server Error' });
   }
 };
+
+// @desc    Add or update a property review & rating
+// @route   POST /api/properties/:id/reviews
+// @access  Private (Renter / Logged in User)
+export const addPropertyReview = async (req: Request, res: Response) => {
+  try {
+    const { rating, comment } = req.body;
+    const propertyId = req.params.id;
+
+    if (!rating || rating < 1 || rating > 5) {
+      res.status(400).json({ success: false, message: 'Please select a star rating between 1 and 5.' });
+      return;
+    }
+
+    if (!comment || !comment.trim()) {
+      res.status(400).json({ success: false, message: 'Please write a review comment.' });
+      return;
+    }
+
+    const property = await Property.findById(propertyId);
+    if (!property) {
+      res.status(404).json({ success: false, message: 'Property not found.' });
+      return;
+    }
+
+    // Property owners cannot review their own property
+    if (property.owner && property.owner.toString() === req.user._id.toString()) {
+      res.status(403).json({ success: false, message: 'Property owners cannot review their own property listings.' });
+      return;
+    }
+
+    const existingReviewIndex = (property.reviews as any[]).findIndex(
+      (r: any) => r.user && r.user.toString() === req.user._id.toString()
+    );
+
+    if (existingReviewIndex !== -1) {
+      // Update existing review
+      property.reviews[existingReviewIndex].rating = Number(rating);
+      property.reviews[existingReviewIndex].comment = comment.trim();
+      property.reviews[existingReviewIndex].userName = req.user.name || 'Renter';
+      property.reviews[existingReviewIndex].userAvatar = req.user.avatar || '';
+    } else {
+      // Add new review
+      const newReview = {
+        user: req.user._id,
+        userName: req.user.name || 'Renter',
+        userAvatar: req.user.avatar || '',
+        userRole: req.user.role || 'RENTER',
+        rating: Number(rating),
+        comment: comment.trim(),
+      };
+      property.reviews.push(newReview as any);
+    }
+
+    // Recalculate rating and reviewCount
+    property.reviewCount = property.reviews.length;
+    const sumRatings = property.reviews.reduce((acc: number, item: any) => acc + item.rating, 0);
+    property.rating = Number((sumRatings / property.reviews.length).toFixed(1));
+
+    await property.save();
+
+    const updatedProperty = await Property.findById(propertyId).populate(
+      'owner',
+      'name email phone whatsapp permanentAddress city businessName avatar propertyLocation unitCount'
+    );
+
+    res.status(201).json({
+      success: true,
+      message: existingReviewIndex !== -1 ? 'Your review has been updated!' : 'Thank you! Your review has been published.',
+      data: updatedProperty,
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message || 'Server Error' });
+  }
+};

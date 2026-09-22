@@ -17,6 +17,17 @@ export interface OwnerInfo {
   unitCount?: string;
 }
 
+export interface ReviewItem {
+  _id?: string;
+  user?: string;
+  userName: string;
+  userAvatar?: string;
+  userRole?: string;
+  rating: number;
+  comment: string;
+  createdAt?: string;
+}
+
 export interface PropertyData {
   _id: string;
   title: string;
@@ -37,6 +48,7 @@ export interface PropertyData {
   occupiedBeds?: number;
   rating: number;
   reviewCount: number;
+  reviews?: ReviewItem[];
   isAvailable: boolean;
   images: string[];
   amenities: string[];
@@ -117,8 +129,8 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onSelect, onEdit,
             {/* RATING DISPLAY */}
             <div className="flex items-center gap-1 bg-amber-50 px-2 py-0.5 rounded-md text-amber-900 font-bold border border-amber-200/60">
               <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-              <span>{property.rating}</span>
-              <span className="text-[10px] text-slate-400 font-normal">({property.reviewCount})</span>
+              <span>{property.rating > 0 ? property.rating : '0'}</span>
+              <span className="text-[10px] text-slate-400 font-normal">({property.reviewCount || 0})</span>
             </div>
           </div>
 

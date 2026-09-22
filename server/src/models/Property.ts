@@ -1,5 +1,41 @@
 import mongoose from 'mongoose';
 
+const reviewSchema = new mongoose.Schema(
+  {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+    userName: {
+      type: String,
+      required: true,
+    },
+    userAvatar: {
+      type: String,
+      default: '',
+    },
+    userRole: {
+      type: String,
+      default: 'RENTER',
+    },
+    rating: {
+      type: Number,
+      required: true,
+      min: 1,
+      max: 5,
+    },
+    comment: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
 const propertySchema = new mongoose.Schema(
   {
     title: {
@@ -72,11 +108,15 @@ const propertySchema = new mongoose.Schema(
     },
     rating: {
       type: Number,
-      default: 4.8,
+      default: 0,
     },
     reviewCount: {
       type: Number,
-      default: 8,
+      default: 0,
+    },
+    reviews: {
+      type: [reviewSchema],
+      default: [],
     },
     isAvailable: {
       type: Boolean,

@@ -135,8 +135,8 @@ const OwnerPropertyDetailModal: React.FC<OwnerPropertyDetailModalProps> = ({ pro
 
             <div className="flex items-center gap-2 bg-amber-50 px-3 py-1.5 rounded-xl border border-amber-200/80 w-fit">
               <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
-              <span className="font-extrabold text-amber-900 text-sm">{property.rating}</span>
-              <span className="text-xs text-slate-500 font-medium">({property.reviewCount} Reviews)</span>
+              <span className="font-extrabold text-amber-900 text-sm">{property.rating > 0 ? property.rating : '0'}</span>
+              <span className="text-xs text-slate-500 font-medium">({property.reviewCount || 0} {property.reviewCount === 1 ? 'Review' : 'Reviews'})</span>
             </div>
           </div>
 
@@ -200,6 +200,39 @@ const OwnerPropertyDetailModal: React.FC<OwnerPropertyDetailModalProps> = ({ pro
                 </span>
               ))}
             </div>
+          </div>
+
+          {/* TENANT REVIEWS & RATINGS */}
+          <div className="space-y-3 pt-4 border-t border-slate-100">
+            <h3 className="text-xs font-bold text-teal-800 uppercase tracking-wider flex items-center gap-1.5">
+              <Star className="w-4 h-4 text-amber-500 fill-amber-500" /> Tenant Ratings & Shared Experiences ({property.reviews?.length || 0})
+            </h3>
+
+            {property.reviews && property.reviews.length > 0 ? (
+              <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
+                {property.reviews.map((rev, idx) => (
+                  <div key={idx} className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 text-xs">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-full bg-teal-600 text-white font-bold flex items-center justify-center text-[10px]">
+                          {rev.userName ? rev.userName.charAt(0).toUpperCase() : 'U'}
+                        </div>
+                        <span className="font-bold text-slate-900">{rev.userName}</span>
+                      </div>
+                      <div className="flex items-center gap-1 bg-amber-100/80 px-2 py-0.5 rounded-md text-amber-900 font-extrabold text-[11px]">
+                        <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
+                        <span>{rev.rating} / 5</span>
+                      </div>
+                    </div>
+                    <p className="text-slate-600 italic leading-relaxed">"{rev.comment}"</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="p-4 bg-slate-50 border border-dashed border-slate-200 rounded-2xl text-center text-xs text-slate-500">
+                No tenant reviews submitted for this property yet.
+              </div>
+            )}
           </div>
         </div>
 

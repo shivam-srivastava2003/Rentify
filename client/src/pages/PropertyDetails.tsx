@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
+import FlashMessage from '../components/FlashMessage';
+import type { FlashType } from '../components/FlashMessage';
 import type { PropertyData, OwnerInfo } from '../components/PropertyCard';
 import { formatCleanAddress } from '../utils/formatAddress';
 import {
@@ -31,13 +33,20 @@ import {
 const PropertyDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, currentUser } = useAuth();
 
   const [property, setProperty] = useState<PropertyData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [copiedLink, setCopiedLink] = useState(false);
+
+  // Review states
+  const [ratingInput, setRatingInput] = useState(5);
+  const [hoverRating, setHoverRating] = useState(0);
+  const [commentInput, setCommentInput] = useState('');
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const [reviewFlash, setReviewFlash] = useState<{ type: FlashType; message: string } | null>(null);
 
   useEffect(() => {
     const fetchPropertyDetails = async () => {
@@ -96,6 +105,54 @@ const PropertyDetails: React.FC = () => {
 
   // Parse Owner Information
   const owner = typeof property.owner === 'object' ? (property.owner as OwnerInfo) : null;
+
+  // Check if logged in user is owner of this listing
+  const ownerId = owner?._id || (typeof property.owner === 'string' ? property.owner : '');
+  const isPropertyOwner = currentUser && (ownerId === currentUser._id || currentUser.role === 'OWNER');
+
+  // Find user's existing review if any
+  const userReview = property.reviews?.find(
+    (r: any) => currentUser && (r.user === currentUser._id || r.user?._id === currentUser._id)
+  );
+
+  useEffect(() => {
+    if (userReview) {
+      setRatingInput(userReview.rating);
+      setCommentInput(userReview.comment);
+    }
+  }, [userReview]);
+
+  const handleReviewSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setReviewFlash(null);
+    if (!ratingInput || ratingInput < 1 || ratingInput > 5) {
+      setReviewFlash({ type: 'error', message: 'Please select a rating between 1 and 5 stars.' });
+      return;
+    }
+    if (!commentInput.trim()) {
+      setReviewFlash({ type: 'error', message: 'Please write a review comment.' });
+      return;
+    }
+
+    setSubmittingReview(true);
+    try {
+      const res = await axios.post(`/properties/${id}/reviews`, {
+        rating: ratingInput,
+        comment: commentInput,
+      });
+      if (res.data.success) {
+        setProperty(res.data.data);
+        setReviewFlash({ type: 'success', message: res.data.message });
+      }
+    } catch (err: any) {
+      setReviewFlash({
+        type: 'error',
+        message: err.response?.data?.message || 'Failed to submit review',
+      });
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
 
   const imagesList = property.images && property.images.length > 0 ? property.images : [fallbackImage];
   const activeImage = imagesList[selectedImageIndex] || imagesList[0];
@@ -193,8 +250,8 @@ const PropertyDetails: React.FC = () => {
 
                 <div className="flex items-center gap-1 bg-amber-50 px-2.5 py-0.5 rounded-lg text-amber-900 font-bold border border-amber-200">
                   <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-                  <span>{property.rating}</span>
-                  <span className="text-slate-400 font-normal">({property.reviewCount} reviews)</span>
+                  <span>{property.rating > 0 ? property.rating : '0.0'}</span>
+                  <span className="text-slate-400 font-normal">({property.reviewCount || 0} {property.reviewCount === 1 ? 'review' : 'reviews'})</span>
                 </div>
               </div>
             </div>
@@ -346,7 +403,7 @@ const PropertyDetails: React.FC = () => {
               {isAuthenticated ? (
                 <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-sm space-y-1.5 text-slate-700">
                   <p><strong>Building / Street:</strong> {formatCleanAddress(property.street || property.address) || 'N/A'}</p>
-                  {property.sector && <p><strong>Sector / Phase:</strong> {formatCleanAddress(property.sector)}</p>}
+                  {/* {property.sector && <p><strong>Sector / Phase:</strong> {formatCleanAddress(property.sector)}</p>} */}
                   <p><strong>Locality / Area:</strong> {formatCleanAddress(property.area)}</p>
                   <p><strong>City & Country:</strong> {formatCleanAddress(property.city, property.country || 'India')}</p>
                 </div>
@@ -374,6 +431,201 @@ const PropertyDetails: React.FC = () => {
                   </div>
                 </div>
               )}
+            </div>
+
+            {/* RATINGS & REVIEWS SECTION */}
+            <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-200/80 shadow-xs">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-100 mb-6">
+                <div>
+                  <h2 className="text-xl font-extrabold text-slate-900 flex items-center gap-2">
+                    <Star className="w-5 h-5 text-amber-500 fill-amber-500" /> Ratings & Tenant Reviews
+                  </h2>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Real feedback and rating experience shared by verified tenants and visitors
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-3 bg-amber-50/80 border border-amber-200 px-4 py-2.5 rounded-2xl w-fit">
+                  <div className="text-3xl font-black text-amber-900">{property.rating > 0 ? property.rating : '0.0'}</div>
+                  <div>
+                    <div className="flex items-center text-amber-500">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star
+                          key={star}
+                          className={`w-4 h-4 ${star <= Math.round(property.rating) ? 'fill-amber-500 text-amber-500' : 'text-slate-300'}`}
+                        />
+                      ))}
+                    </div>
+                    <span className="text-[11px] font-bold text-slate-600 block mt-0.5">
+                      {property.reviewCount || 0} {property.reviewCount === 1 ? 'Review' : 'Reviews'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* REVIEW SUBMISSION FORM (ONLY LOGGED-IN NON-OWNER RENTERS CAN SUBMIT) */}
+              {isAuthenticated ? (
+                isPropertyOwner ? (
+                  <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-xs text-slate-600 mb-6 flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4 text-teal-600 shrink-0" />
+                    <span>You are the owner of this property. Tenant ratings and shared experiences are listed below.</span>
+                  </div>
+                ) : (
+                  <div className="bg-slate-50/90 border border-teal-100 p-5 rounded-2xl mb-8">
+                    <h3 className="font-extrabold text-slate-900 text-sm mb-1 flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-teal-600" />
+                      {userReview ? 'Update Your Rating & Review' : 'Share Your Rating & Review'}
+                    </h3>
+                    <p className="text-xs text-slate-500 mb-4">
+                      Rate your stay, location cleanliness, maintenance, and landlord cooperation.
+                    </p>
+
+                    {reviewFlash && (
+                      <div className="mb-4">
+                        <FlashMessage
+                          type={reviewFlash.type}
+                          message={reviewFlash.message}
+                          onClose={() => setReviewFlash(null)}
+                        />
+                      </div>
+                    )}
+
+                    <form onSubmit={handleReviewSubmit} className="space-y-4">
+                      {/* STAR RATING PICKER */}
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                          Your Rating (1 to 5 Stars) *
+                        </label>
+                        <div className="flex items-center gap-1.5">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <button
+                              key={star}
+                              type="button"
+                              onClick={() => setRatingInput(star)}
+                              onMouseEnter={() => setHoverRating(star)}
+                              onMouseLeave={() => setHoverRating(0)}
+                              className="p-1 rounded-lg hover:bg-amber-50 transition-colors focus:outline-none"
+                              title={`${star} Star${star > 1 ? 's' : ''}`}
+                            >
+                              <Star
+                                className={`w-7 h-7 transition-all ${
+                                  star <= (hoverRating || ratingInput)
+                                    ? 'text-amber-500 fill-amber-500 scale-110'
+                                    : 'text-slate-300'
+                                }`}
+                              />
+                            </button>
+                          ))}
+                          <span className="text-xs font-bold text-amber-900 ml-2 bg-amber-100 px-2.5 py-1 rounded-lg">
+                            {hoverRating || ratingInput} / 5 Stars
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* COMMENT TEXTAREA */}
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                          Review Comment *
+                        </label>
+                        <textarea
+                          required
+                          rows={3}
+                          placeholder="e.g. Great PG, clean rooms with fast WiFi, good food, and supportive landlord."
+                          value={commentInput}
+                          onChange={(e) => setCommentInput(e.target.value)}
+                          className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
+                        />
+                      </div>
+
+                      <button
+                        type="submit"
+                        disabled={submittingReview}
+                        className="bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs px-5 py-3 rounded-xl transition-all shadow-md shadow-teal-600/20 disabled:opacity-50 flex items-center gap-2"
+                      >
+                        <Star className="w-4 h-4 fill-white" />
+                        <span>{submittingReview ? 'Submitting...' : userReview ? 'Update My Review' : 'Submit Review'}</span>
+                      </button>
+                    </form>
+                  </div>
+                )
+              ) : (
+                /* GUEST USER (UNAUTHENTICATED CAN ONLY SEE RATINGS & REVIEWS) */
+                <div className="bg-amber-50/70 border border-amber-200/90 p-5 rounded-2xl mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div>
+                    <h3 className="font-extrabold text-amber-950 text-sm flex items-center gap-1.5">
+                      <Lock className="w-4 h-4 text-amber-600" /> Log In to Leave a Review
+                    </h3>
+                    <p className="text-xs text-amber-800 mt-0.5">
+                      Guests can view reviews and ratings. Log in or create a free account to publish your review.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Link
+                      to="/login"
+                      className="bg-slate-900 hover:bg-teal-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-all"
+                    >
+                      Log In
+                    </Link>
+                    <Link
+                      to="/register"
+                      className="bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition-all"
+                    >
+                      Register
+                    </Link>
+                  </div>
+                </div>
+              )}
+
+              {/* REVIEWS FEEDBACK LIST */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-extrabold text-slate-900 uppercase tracking-wider">
+                  Tenant Feedback & Reviews ({property.reviews?.length || 0})
+                </h3>
+
+                {property.reviews && property.reviews.length > 0 ? (
+                  <div className="space-y-3">
+                    {property.reviews.map((rev, idx) => (
+                      <div key={idx} className="p-4 bg-slate-50 rounded-2xl border border-slate-200/70">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-teal-600 to-teal-800 text-white font-bold flex items-center justify-center text-xs shadow-xs">
+                              {rev.userName ? rev.userName.charAt(0).toUpperCase() : 'R'}
+                            </div>
+                            <div>
+                              <h4 className="font-bold text-slate-900 text-xs">{rev.userName}</h4>
+                              <span className="text-[10px] text-slate-400 block font-medium">
+                                {rev.createdAt ? new Date(rev.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Verified Renter'}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-1 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200">
+                            <div className="flex items-center text-amber-500">
+                              {[1, 2, 3, 4, 5].map((star) => (
+                                <Star
+                                  key={star}
+                                  className={`w-3 h-3 ${star <= rev.rating ? 'fill-amber-500 text-amber-500' : 'text-slate-300'}`}
+                                />
+                              ))}
+                            </div>
+                            <span className="text-xs font-extrabold text-amber-900 ml-1">{rev.rating}.0</span>
+                          </div>
+                        </div>
+
+                        <p className="text-xs text-slate-700 leading-relaxed pl-1 whitespace-pre-line">
+                          {rev.comment}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="py-8 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                    <Star className="w-10 h-10 text-slate-300 mx-auto mb-2" />
+                    <p className="text-xs font-bold text-slate-600">No reviews published yet</p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">Be the first tenant to share your rating and review for this property.</p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
