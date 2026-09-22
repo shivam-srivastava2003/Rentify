@@ -52,7 +52,7 @@ const OwnerPropertyDetailModal: React.FC<OwnerPropertyDetailModalProps> = ({ pro
                 className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs px-3.5 py-2 rounded-xl flex items-center gap-1.5 transition-colors"
               >
                 <Edit3 className="w-3.5 h-3.5" />
-                <span>Edit Listing</span>
+            
               </button>
             )}
 
