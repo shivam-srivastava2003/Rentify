@@ -55,7 +55,17 @@ const PropertyDetails: React.FC = () => {
       try {
         const response = await axios.get(`/properties/${id}`);
         if (response.data.success) {
-          setProperty(response.data.data);
+          const propData = response.data.data;
+          setProperty(propData);
+          if (currentUser && propData?.reviews) {
+            const existing = propData.reviews.find(
+              (r: any) => r.user === currentUser._id || r.user?._id === currentUser._id
+            );
+            if (existing) {
+              setRatingInput(existing.rating);
+              setCommentInput(existing.comment);
+            }
+          }
         } else {
           setError('Property not found');
         }
@@ -69,7 +79,7 @@ const PropertyDetails: React.FC = () => {
     if (id) {
       fetchPropertyDetails();
     }
-  }, [id]);
+  }, [id, currentUser]);
 
   const fallbackImage =
     'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1200&q=80';
@@ -114,13 +124,6 @@ const PropertyDetails: React.FC = () => {
   const userReview = property.reviews?.find(
     (r: any) => currentUser && (r.user === currentUser._id || r.user?._id === currentUser._id)
   );
-
-  useEffect(() => {
-    if (userReview) {
-      setRatingInput(userReview.rating);
-      setCommentInput(userReview.comment);
-    }
-  }, [userReview]);
 
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
