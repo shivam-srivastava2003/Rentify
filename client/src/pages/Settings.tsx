@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
@@ -14,14 +14,15 @@ import {
   UserCheck,
   ArrowLeft,
   CheckCircle2,
-  Save
+  Save,
+  Mail
 } from 'lucide-react';
 
 const Settings: React.FC = () => {
-  const { currentUser, role } = useAuth();
+  const { currentUser, role, updateUser } = useAuth();
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState<'security' | 'privacy' | 'account'>('security');
+  const [activeTab, setActiveTab] = useState<'security' | 'email' | 'privacy' | 'account'>('security');
 
   // Password Form State
   const [currentPassword, setCurrentPassword] = useState('');
@@ -31,6 +32,12 @@ const Settings: React.FC = () => {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  // Email Update Form State
+  const [newEmail, setNewEmail] = useState('');
+  const [emailCurrentPassword, setEmailCurrentPassword] = useState('');
+  const [showEmailPassword, setShowEmailPassword] = useState(false);
+  const [emailLoading, setEmailLoading] = useState(false);
+
   // Preference Settings State
   const [showPhoneToUsers, setShowPhoneToUsers] = useState(true);
   const [emailNotifications, setEmailNotifications] = useState(true);
@@ -38,6 +45,12 @@ const Settings: React.FC = () => {
 
   const [flash, setFlash] = useState<{ type: FlashType; message: string } | null>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (currentUser?.email) {
+      setNewEmail(currentUser.email);
+    }
+  }, [currentUser]);
 
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,6 +101,52 @@ const Settings: React.FC = () => {
     }
   };
 
+  const handleEmailSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFlash(null);
+
+    if (!newEmail || !newEmail.includes('@')) {
+      setFlash({ type: 'error', message: 'Please enter a valid new email address.' });
+      return;
+    }
+
+    if (newEmail.trim().toLowerCase() === currentUser?.email?.toLowerCase()) {
+      setFlash({ type: 'error', message: 'New email address must be different from your current email.' });
+      return;
+    }
+
+    if (!emailCurrentPassword) {
+      setFlash({ type: 'error', message: 'Please enter your password to authorize email update.' });
+      return;
+    }
+
+    setEmailLoading(true);
+
+    try {
+      const response = await axios.put('/auth/update-email', {
+        newEmail,
+        currentPassword: emailCurrentPassword,
+      });
+
+      if (response.data.success) {
+        updateUser(response.data.data);
+        setFlash({
+          type: 'success',
+          message: 'Your email address has been updated successfully!',
+        });
+        setEmailCurrentPassword('');
+      }
+    } catch (err: any) {
+      console.error('Email update error:', err);
+      setFlash({
+        type: 'error',
+        message: err.response?.data?.message || 'Failed to update email address.',
+      });
+    } finally {
+      setEmailLoading(false);
+    }
+  };
+
   const handlePreferencesSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setFlash({
@@ -135,7 +194,7 @@ const Settings: React.FC = () => {
         <div className="mb-8">
           <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Account & Security Settings</h1>
           <p className="text-slate-600 text-sm mt-1">
-            Manage your password, account credentials, privacy controls, and communication preferences.
+            Manage your password, registered email ID, privacy controls, and communication preferences.
           </p>
         </div>
 
@@ -174,6 +233,21 @@ const Settings: React.FC = () => {
 
               <button
                 onClick={() => {
+                  setActiveTab('email');
+                  setFlash(null);
+                }}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all ${
+                  activeTab === 'email'
+                    ? 'bg-teal-600 text-white shadow-lg shadow-teal-600/30'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                }`}
+              >
+                <Mail className="w-4 h-4" />
+                <span>Update Email ID</span>
+              </button>
+
+              <button
+                onClick={() => {
                   setActiveTab('privacy');
                   setFlash(null);
                 }}
@@ -199,7 +273,7 @@ const Settings: React.FC = () => {
                 }`}
               >
                 <UserCheck className="w-4 h-4" />
-                <span>Account Info</span>
+                <span>Account Summary</span>
               </button>
             </div>
 
@@ -333,7 +407,90 @@ const Settings: React.FC = () => {
               </div>
             )}
 
-            {/* TAB 2: PRIVACY & PREFERENCES */}
+            {/* TAB 2: UPDATE EMAIL ADDRESS */}
+            {activeTab === 'email' && (
+              <div>
+                <div className="flex items-center gap-3 pb-6 mb-6 border-b border-slate-100">
+                  <div className="p-3 bg-teal-50 text-teal-600 rounded-2xl border border-teal-100">
+                    <Mail className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold text-slate-900">Update Registered Email Address</h2>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Change the primary email address associated with your Rentify account.
+                    </p>
+                  </div>
+                </div>
+
+                <form onSubmit={handleEmailSubmit} className="space-y-6">
+                  {/* Current Email Badge */}
+                  <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl text-xs flex justify-between items-center">
+                    <span className="font-bold text-slate-500 uppercase tracking-wider">Current Email:</span>
+                    <span className="font-bold text-slate-900">{currentUser?.email || 'N/A'}</span>
+                  </div>
+
+                  {/* New Email Input */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                      New Email Address *
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <Mail className="w-4 h-4" />
+                      </div>
+                      <input
+                        type="email"
+                        required
+                        value={newEmail}
+                        onChange={(e) => setNewEmail(e.target.value)}
+                        placeholder="Enter your new email address"
+                        className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-white transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Password Authorization */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                      Current Password (for authorization) *
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <Lock className="w-4 h-4" />
+                      </div>
+                      <input
+                        type={showEmailPassword ? 'text' : 'password'}
+                        required
+                        value={emailCurrentPassword}
+                        onChange={(e) => setEmailCurrentPassword(e.target.value)}
+                        placeholder="Enter your current password to confirm"
+                        className="w-full pl-10 pr-12 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-white transition-all font-mono"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowEmailPassword(!showEmailPassword)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                      >
+                        {showEmailPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 border-t border-slate-100 flex items-center justify-end">
+                    <button
+                      type="submit"
+                      disabled={emailLoading}
+                      className="inline-flex items-center gap-2 bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 disabled:opacity-50 text-white font-bold text-xs px-6 py-3.5 rounded-2xl shadow-lg shadow-teal-600/20 transition-all transform hover:-translate-y-0.5"
+                    >
+                      <Save className="w-4 h-4" />
+                      <span>{emailLoading ? 'Updating Email...' : 'Save New Email ID'}</span>
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+
+            {/* TAB 3: PRIVACY & PREFERENCES */}
             {activeTab === 'privacy' && (
               <div>
                 <div className="flex items-center gap-3 pb-6 mb-6 border-b border-slate-100">
@@ -421,7 +578,7 @@ const Settings: React.FC = () => {
               </div>
             )}
 
-            {/* TAB 3: ACCOUNT INFO */}
+            {/* TAB 4: ACCOUNT INFO */}
             {activeTab === 'account' && (
               <div>
                 <div className="flex items-center gap-3 pb-6 mb-6 border-b border-slate-100">

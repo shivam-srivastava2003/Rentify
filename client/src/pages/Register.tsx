@@ -6,7 +6,7 @@ import Logo from '../components/Logo';
 import FlashMessage from '../components/FlashMessage';
 import type { FlashType } from '../components/FlashMessage';
 import heroImg from '../assets/hero.jpg';
-import { User, Building, Lock, Mail, Phone, Building2, CheckCircle2, ArrowRight, ShieldCheck, Eye, EyeOff } from 'lucide-react';
+import { User, Building, Lock, Mail, Phone, CheckCircle2, ArrowRight, ShieldCheck, Eye, EyeOff } from 'lucide-react';
 
 const Register: React.FC = () => {
   const [role, setRole] = useState<'USER' | 'OWNER'>('USER');
@@ -16,12 +16,10 @@ const Register: React.FC = () => {
     name: '',
     email: '',
     phone: '',
+    gender: 'Male',
+    city: 'Bengaluru',
     password: '',
     confirmPassword: '',
-    city: 'Bengaluru',
-    businessName: '',
-    propertyLocation: '',
-    unitCount: '1-5 Units',
   });
 
   const [flash, setFlash] = useState<{ type: FlashType; message: string } | null>(null);
@@ -58,16 +56,10 @@ const Register: React.FC = () => {
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
+        gender: formData.gender,
+        city: formData.city,
         password: formData.password,
         role,
-        ...(role === 'USER' ? { city: formData.city } : {}),
-        ...(role === 'OWNER'
-          ? {
-              businessName: formData.businessName,
-              propertyLocation: formData.propertyLocation,
-              unitCount: formData.unitCount,
-            }
-          : {}),
       };
 
       const response = await axios.post('/auth/register', payload);
@@ -149,11 +141,10 @@ const Register: React.FC = () => {
 
             {/* STEP 1: VISUAL ROLE SELECTION */}
             <div className="mb-6">
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-                Select Account Role
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                I want to register as:
               </label>
               <div className="grid grid-cols-2 gap-3">
-                {/* User Option */}
                 <button
                   type="button"
                   onClick={() => {
@@ -173,11 +164,10 @@ const Register: React.FC = () => {
                     <User className="w-4 h-4" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-slate-900 text-xs">Tenant / Room Seeker</h3>
+                    <h3 className="font-bold text-slate-900 text-xs">Tenant / Renter</h3>
                   </div>
                 </button>
 
-                {/* Owner Option */}
                 <button
                   type="button"
                   onClick={() => {
@@ -203,10 +193,10 @@ const Register: React.FC = () => {
               </div>
             </div>
 
-            {/* DYNAMIC REGISTRATION FORM */}
+            {/* COMMON REGISTRATION FORM FOR BOTH ROLES */}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Full Name</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">Full Name *</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                     <User className="w-4 h-4" />
@@ -225,7 +215,7 @@ const Register: React.FC = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Email Address</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Email Address *</label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                       <Mail className="w-4 h-4" />
@@ -243,7 +233,7 @@ const Register: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Mobile Phone</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Mobile Phone *</label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                       <Phone className="w-4 h-4" />
@@ -261,15 +251,30 @@ const Register: React.FC = () => {
                 </div>
               </div>
 
-              {/* ROLE SPECIFIC EXTRA FIELDS */}
-              {role === 'USER' ? (
-                <div className="p-3.5 bg-teal-50/50 rounded-2xl border border-teal-100">
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Preferred City to Rent</label>
+              {/* COMMON GENDER & CITY SELECTION */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Gender *</label>
+                  <select
+                    name="gender"
+                    value={formData.gender}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
+                  >
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                    <option value="Prefer not to say">Prefer not to say</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">City / Location *</label>
                   <select
                     name="city"
                     value={formData.city}
                     onChange={handleChange}
-                    className="w-full px-4 py-2 bg-white border border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
+                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600"
                   >
                     <option value="Bengaluru">Bengaluru</option>
                     <option value="Mumbai">Mumbai</option>
@@ -280,61 +285,12 @@ const Register: React.FC = () => {
                     <option value="Other">Other City</option>
                   </select>
                 </div>
-              ) : (
-                <div className="p-3.5 bg-amber-50/50 rounded-2xl border border-amber-200/60 space-y-3">
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">Property or PG Brand Name</label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                        <Building2 className="w-4 h-4" />
-                      </div>
-                      <input
-                        type="text"
-                        name="businessName"
-                        required
-                        placeholder="e.g. GreenStays PG for Men"
-                        value={formData.businessName}
-                        onChange={handleChange}
-                        className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">Property City / Area</label>
-                      <input
-                        type="text"
-                        name="propertyLocation"
-                        required
-                        placeholder="e.g. Indiranagar, Bengaluru"
-                        value={formData.propertyLocation}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 bg-white border border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">Total Capacity</label>
-                      <select
-                        name="unitCount"
-                        value={formData.unitCount}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 bg-white border border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
-                      >
-                        <option value="1-5 Units">1 - 5 Rooms / Beds</option>
-                        <option value="6-20 Units">6 - 20 Rooms / Beds</option>
-                        <option value="20+ Units">20+ Large PG / Complex</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              )}
+              </div>
 
               {/* Password Fields */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Password</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Password *</label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                       <Lock className="w-4 h-4" />
@@ -346,7 +302,7 @@ const Register: React.FC = () => {
                       placeholder="••••••••"
                       value={formData.password}
                       onChange={handleChange}
-                      className="w-full pl-10 pr-11 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600 focus:bg-white transition-all"
+                      className="w-full pl-10 pr-11 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600 focus:bg-white transition-all font-mono"
                     />
                     <button
                       type="button"
@@ -360,7 +316,7 @@ const Register: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Confirm Password</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Confirm Password *</label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                       <Lock className="w-4 h-4" />
@@ -372,7 +328,7 @@ const Register: React.FC = () => {
                       placeholder="••••••••"
                       value={formData.confirmPassword}
                       onChange={handleChange}
-                      className="w-full pl-10 pr-11 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600 focus:bg-white transition-all"
+                      className="w-full pl-10 pr-11 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600 focus:bg-white transition-all font-mono"
                     />
                     <button
                       type="button"
@@ -404,11 +360,11 @@ const Register: React.FC = () => {
             </form>
           </div>
 
-          <div className="mt-6 text-center border-t border-slate-100 pt-4">
+          <div className="mt-8 text-center border-t border-slate-100 pt-4">
             <p className="text-xs text-slate-600">
-              Already registered on Rentify?{' '}
+              Already have an account?{' '}
               <Link to="/login" className="font-bold text-teal-600 hover:text-teal-700">
-                Sign in to your account
+                Sign In
               </Link>
             </p>
           </div>

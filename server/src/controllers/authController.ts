@@ -356,3 +356,68 @@ export const resetPassword = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: error.message || 'Internal Server Error' });
   }
 };
+
+// @desc    Update user email address securely
+// @route   PUT /api/auth/update-email
+// @access  Private
+export const updateEmail = async (req: Request, res: Response) => {
+  try {
+    const { newEmail, currentPassword } = req.body;
+
+    if (!newEmail || !currentPassword) {
+      res.status(400).json({ success: false, message: 'Please provide new email address and current password for verification.' });
+      return;
+    }
+
+    const cleanNewEmail = newEmail.trim().toLowerCase();
+
+    // Check if new email is already in use by another user
+    const existingUser = await User.findOne({
+      email: { $regex: new RegExp(`^${cleanNewEmail}$`, 'i') },
+      _id: { $ne: req.user._id },
+    });
+
+    if (existingUser) {
+      res.status(400).json({ success: false, message: 'An account with this email address already exists.' });
+      return;
+    }
+
+    const user = (await User.findById(req.user._id)) as any;
+
+    if (!user) {
+      res.status(404).json({ success: false, message: 'User not found' });
+      return;
+    }
+
+    const isMatch = await user.matchPassword(currentPassword);
+    if (!isMatch) {
+      res.status(400).json({ success: false, message: 'Incorrect password. Verification failed.' });
+      return;
+    }
+
+    user.email = cleanNewEmail;
+    const updatedUser = await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Email address updated successfully!',
+      data: {
+        _id: updatedUser._id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        role: updatedUser.role,
+        phone: updatedUser.phone,
+        whatsapp: updatedUser.whatsapp,
+        permanentAddress: updatedUser.permanentAddress,
+        city: updatedUser.city,
+        businessName: updatedUser.businessName,
+        propertyLocation: updatedUser.propertyLocation,
+        unitCount: updatedUser.unitCount,
+        gender: updatedUser.gender,
+        avatar: updatedUser.avatar,
+      },
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message || 'Internal Server Error' });
+  }
+};

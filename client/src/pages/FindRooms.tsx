@@ -53,9 +53,7 @@ const FindRooms: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header Title */}
         <div className="mb-8">
-          <div className="inline-flex items-center gap-1.5 bg-teal-50 text-teal-700 text-xs font-bold px-3 py-1 rounded-full border border-teal-200 mb-2">
-            <Building2 className="w-3.5 h-3.5" /> Phase 2 Live Discovery Engine
-          </div>
+          
           <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
             Explore Verified Rooms & PGs
           </h1>
