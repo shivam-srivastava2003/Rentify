@@ -2,6 +2,29 @@ import { Request, Response } from 'express';
 import Property from '../models/Property';
 import { uploadToCloudinary } from '../config/cloudinary';
 
+const cleanAddressParts = (...parts: (string | undefined | null)[]): string => {
+  const allSegments: string[] = [];
+  for (const part of parts) {
+    if (!part || typeof part !== 'string') continue;
+    for (const sub of part.split(',')) {
+      const trimmed = sub.trim();
+      if (trimmed && trimmed.toLowerCase() !== 'n/a') {
+        allSegments.push(trimmed);
+      }
+    }
+  }
+  const seen = new Set<string>();
+  const uniqueSegments: string[] = [];
+  for (const seg of allSegments) {
+    const key = seg.toLowerCase().replace(/\s+/g, ' ');
+    if (!seen.has(key)) {
+      seen.add(key);
+      uniqueSegments.push(seg);
+    }
+  }
+  return uniqueSegments.join(', ');
+};
+
 // @desc    Get all properties with filtering
 // @route   GET /api/properties
 // @access  Public
@@ -129,10 +152,8 @@ export const createProperty = async (req: Request, res: Response) => {
       );
     }
 
-    const constructedArea = sector ? `${sector}, ${area || city}` : area || city;
-    const constructedAddress = street
-      ? `${street}, ${constructedArea}, ${city}, ${country || 'India'}`
-      : `${constructedArea}, ${city}, ${country || 'India'}`;
+    const constructedArea = cleanAddressParts(sector, area, city);
+    const constructedAddress = cleanAddressParts(street, sector, area, city, country || 'India');
 
     const property = await Property.create({
       title,
@@ -219,10 +240,14 @@ export const updateProperty = async (req: Request, res: Response) => {
       );
     }
 
-    const constructedArea = sector ? `${sector}, ${area || city}` : area || property.area;
-    const constructedAddress = street
-      ? `${street}, ${constructedArea}, ${city || property.city}, ${country || 'India'}`
-      : `${constructedArea}, ${city || property.city}, ${country || 'India'}`;
+    const constructedArea = cleanAddressParts(sector, area || property.area, city || property.city);
+    const constructedAddress = cleanAddressParts(
+      street !== undefined ? street : property.street,
+      sector !== undefined ? sector : property.sector,
+      area || property.area,
+      city || property.city,
+      country || property.country || 'India'
+    );
 
     property.title = title || property.title;
     property.description = description !== undefined ? description : property.description;

@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import type { PropertyData, OwnerInfo } from '../components/PropertyCard';
+import { formatCleanAddress } from '../utils/formatAddress';
 import {
   MapPin,
   Star,
@@ -184,9 +185,9 @@ const PropertyDetails: React.FC = () => {
                 <div className="flex items-center gap-1 text-slate-700 font-semibold">
                   <MapPin className="w-4 h-4 text-teal-600 shrink-0" />
                   <span>
-                    {isAuthenticated && property.address ? `${property.address}, ` : ''}
-                    {isAuthenticated && property.sector ? `${property.sector}, ` : ''}
-                    {property.area}, {property.city}
+                    {isAuthenticated
+                      ? formatCleanAddress(property.address, property.sector, property.area, property.city, property.country)
+                      : formatCleanAddress(property.area, property.city)}
                   </span>
                 </div>
 
@@ -344,10 +345,10 @@ const PropertyDetails: React.FC = () => {
 
               {isAuthenticated ? (
                 <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-sm space-y-1.5 text-slate-700">
-                  <p><strong>Building / Street:</strong> {property.address || property.street || 'N/A'}</p>
-                  {property.sector && <p><strong>Sector / Phase:</strong> {property.sector}</p>}
-                  <p><strong>Locality / Area:</strong> {property.area}</p>
-                  <p><strong>City & Country:</strong> {property.city}, {property.country || 'India'}</p>
+                  <p><strong>Building / Street:</strong> {formatCleanAddress(property.street || property.address) || 'N/A'}</p>
+                  {property.sector && <p><strong>Sector / Phase:</strong> {formatCleanAddress(property.sector)}</p>}
+                  <p><strong>Locality / Area:</strong> {formatCleanAddress(property.area)}</p>
+                  <p><strong>City & Country:</strong> {formatCleanAddress(property.city, property.country || 'India')}</p>
                 </div>
               ) : (
                 <div className="bg-amber-50/70 border border-amber-200 p-5 rounded-2xl">

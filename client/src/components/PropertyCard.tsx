@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MapPin, Star, CheckCircle2, XCircle, ArrowRight, Edit3, Trash2 } from 'lucide-react';
+import { formatCleanAddress } from '../utils/formatAddress';
 
 export interface OwnerInfo {
   _id?: string;
@@ -100,7 +101,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, onSelect, onEdit,
         {/* Bottom Location Overlay */}
         <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-md text-slate-900 text-xs font-bold px-2.5 py-1 rounded-lg flex items-center gap-1 shadow-xs">
           <MapPin className="w-3.5 h-3.5 text-teal-600" />
-          <span>{property.area}, {property.city}</span>
+          <span>{formatCleanAddress(property.area, property.city)}</span>
         </div>
       </div>
 

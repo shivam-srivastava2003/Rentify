@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { PropertyData } from './PropertyCard';
 import { X, MapPin, CheckCircle2, XCircle, Star, Layers, ChevronLeft, ChevronRight, Edit3, Trash2 } from 'lucide-react';
+import { formatCleanAddress } from '../utils/formatAddress';
 
 interface OwnerPropertyDetailModalProps {
   property: PropertyData | null;
@@ -126,7 +127,9 @@ const OwnerPropertyDetailModal: React.FC<OwnerPropertyDetailModalProps> = ({ pro
               <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">{property.title}</h2>
               <div className="flex items-center gap-2 text-xs text-slate-500 mt-1">
                 <MapPin className="w-4 h-4 text-teal-600" />
-                <span className="font-semibold text-slate-700">{property.address}</span>
+                <span className="font-semibold text-slate-700">
+                  {formatCleanAddress(property.address, property.sector, property.area, property.city, property.country)}
+                </span>
               </div>
             </div>
 

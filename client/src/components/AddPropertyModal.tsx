@@ -144,7 +144,7 @@ const AddPropertyModal: React.FC<AddPropertyModalProps> = ({ isOpen, onClose, on
         sector: formData.sector,
         street: formData.street,
         country: formData.country || 'India',
-        area: formData.sector ? `${formData.sector}, ${formData.city}` : formData.city,
+        area: formData.sector || formData.city,
         price: Number(formData.price),
         deposit: Number(formData.deposit || 0),
         maintenance: Number(formData.maintenance || 0),
