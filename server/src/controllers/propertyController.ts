@@ -169,13 +169,13 @@ export const createProperty = async (req: Request, res: Response) => {
       price: Number(price),
       deposit: Number(deposit || 0),
       maintenance: Number(maintenance || 0),
-      totalBeds: Number(totalBeds || 10),
-      availableBeds: Number(availableBeds || 6),
-      occupiedBeds: Number(occupiedBeds || 4),
+      totalBeds: Number(totalBeds ?? 1),
+      availableBeds: Number(availableBeds !== undefined ? availableBeds : (totalBeds ?? 1)),
+      occupiedBeds: Number(occupiedBeds ?? 0),
       images: cloudinaryImageUrls,
       amenities: amenities || ['WiFi', 'AC', 'Housekeeping', 'Power Backup'],
       owner: req.user._id,
-      isAvailable: Number(availableBeds || 6) > 0,
+      isAvailable: Number(availableBeds !== undefined ? availableBeds : (totalBeds ?? 1)) > 0,
     });
 
     res.status(201).json({

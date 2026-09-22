@@ -3,6 +3,7 @@ import axios from 'axios';
 import FlashMessage from './FlashMessage';
 import type { FlashType } from './FlashMessage';
 import { X, Upload, CheckCircle2, Plus, Building2, MapPin, IndianRupee, Layers } from 'lucide-react';
+import { getUnitLabel } from '../utils/formatAddress';
 
 interface AddPropertyModalProps {
   isOpen: boolean;
@@ -23,9 +24,9 @@ const AddPropertyModal: React.FC<AddPropertyModalProps> = ({ isOpen, onClose, on
     price: '',
     deposit: '',
     maintenance: '',
-    totalBeds: '10',
-    availableBeds: '6',
-    occupiedBeds: '4',
+    totalBeds: '1',
+    availableBeds: '1',
+    occupiedBeds: '0',
     description: '',
   });
 
@@ -148,9 +149,9 @@ const AddPropertyModal: React.FC<AddPropertyModalProps> = ({ isOpen, onClose, on
         price: Number(formData.price),
         deposit: Number(formData.deposit || 0),
         maintenance: Number(formData.maintenance || 0),
-        totalBeds: Number(formData.totalBeds || 10),
-        availableBeds: Number(formData.availableBeds || 6),
-        occupiedBeds: Number(formData.occupiedBeds || 4),
+        totalBeds: Number(formData.totalBeds || 1),
+        availableBeds: Number(formData.availableBeds !== '' ? formData.availableBeds : (formData.totalBeds || 1)),
+        occupiedBeds: Number(formData.occupiedBeds || 0),
         images: images,
         amenities: amenities,
       };
@@ -422,17 +423,20 @@ const AddPropertyModal: React.FC<AddPropertyModalProps> = ({ isOpen, onClose, on
               </div>
             </div>
 
-            {/* SECTION 5: OCCUPANCY & CAPACITY (DEFAULT VALUES) */}
+            {/* SECTION 5: OCCUPANCY & CAPACITY (ADAPTIVE LABELS) */}
             <div className="space-y-4">
               <h3 className="text-xs font-bold text-teal-800 uppercase tracking-wider flex items-center gap-1.5 pb-2 border-b border-slate-100">
-                <Layers className="w-4 h-4 text-teal-600" /> 5. Occupancy & Unit Capacity
+                <Layers className="w-4 h-4 text-teal-600" /> 5. {getUnitLabel(formData.type).sectionTitle}
               </h3>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Total Rooms/Beds</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Total {getUnitLabel(formData.type).pluralUnitName}
+                  </label>
                   <input
                     type="number"
+                    min="1"
                     value={formData.totalBeds}
                     onChange={(e) => setFormData({ ...formData, totalBeds: e.target.value })}
                     className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-teal-600"
@@ -440,9 +444,12 @@ const AddPropertyModal: React.FC<AddPropertyModalProps> = ({ isOpen, onClose, on
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Available Beds 🟢</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Available {getUnitLabel(formData.type).pluralUnitName} 🟢
+                  </label>
                   <input
                     type="number"
+                    min="0"
                     value={formData.availableBeds}
                     onChange={(e) => setFormData({ ...formData, availableBeds: e.target.value })}
                     className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-teal-600"
@@ -450,9 +457,12 @@ const AddPropertyModal: React.FC<AddPropertyModalProps> = ({ isOpen, onClose, on
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Occupied Beds 🔴</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Occupied {getUnitLabel(formData.type).pluralUnitName} 🔴
+                  </label>
                   <input
                     type="number"
+                    min="0"
                     value={formData.occupiedBeds}
                     onChange={(e) => setFormData({ ...formData, occupiedBeds: e.target.value })}
                     className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-teal-600"

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import type { PropertyData } from './PropertyCard';
 import { X, MapPin, CheckCircle2, XCircle, Star, Layers, ChevronLeft, ChevronRight, Edit3, Trash2 } from 'lucide-react';
-import { formatCleanAddress } from '../utils/formatAddress';
+import { formatCleanAddress, getUnitLabel } from '../utils/formatAddress';
 
 interface OwnerPropertyDetailModalProps {
   property: PropertyData | null;
@@ -161,30 +161,36 @@ const OwnerPropertyDetailModal: React.FC<OwnerPropertyDetailModalProps> = ({ pro
             </div>
           </div>
 
-          {/* OCCUPANCY BREAKDOWN & AVAILABILITY STATUS */}
+          {/* OCCUPANCY BREAKDOWN & AVAILABILITY STATUS (ADAPTIVE LABELS) */}
           <div className="space-y-3">
             <h3 className="text-xs font-bold text-teal-800 uppercase tracking-wider flex items-center gap-1.5">
-              <Layers className="w-4 h-4 text-teal-600" /> Occupancy & Capacity Status
+              <Layers className="w-4 h-4 text-teal-600" /> {getUnitLabel(property.type).sectionTitle}
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="bg-white p-4 rounded-xl border border-slate-200 text-center">
                 <span className="text-xs text-slate-500 font-medium">Total Capacity</span>
-                <p className="text-2xl font-black text-slate-900 mt-1">{(property as any).totalBeds || 10} Beds</p>
+                <p className="text-2xl font-black text-slate-900 mt-1">
+                  {(property as any).totalBeds !== undefined ? (property as any).totalBeds : 1} {getUnitLabel(property.type).pluralUnitName}
+                </p>
               </div>
 
               <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-200 text-center">
                 <span className="text-xs text-emerald-700 font-bold flex items-center justify-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5" /> Available Beds
+                  <CheckCircle2 className="w-3.5 h-3.5" /> Available {getUnitLabel(property.type).pluralUnitName}
                 </span>
-                <p className="text-2xl font-black text-emerald-800 mt-1">{(property as any).availableBeds || 6} Free</p>
+                <p className="text-2xl font-black text-emerald-800 mt-1">
+                  {(property as any).availableBeds !== undefined ? (property as any).availableBeds : ((property as any).totalBeds ?? 1)} Free
+                </p>
               </div>
 
               <div className="bg-rose-50 p-4 rounded-xl border border-rose-200 text-center">
                 <span className="text-xs text-rose-700 font-bold flex items-center justify-center gap-1">
                   <XCircle className="w-3.5 h-3.5" /> Occupied / Filled
                 </span>
-                <p className="text-2xl font-black text-rose-800 mt-1">{(property as any).occupiedBeds || 4} Beds</p>
+                <p className="text-2xl font-black text-rose-800 mt-1">
+                  {(property as any).occupiedBeds !== undefined ? (property as any).occupiedBeds : 0} {getUnitLabel(property.type).pluralUnitName}
+                </p>
               </div>
             </div>
           </div>

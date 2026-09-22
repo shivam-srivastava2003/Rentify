@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import FlashMessage from '../components/FlashMessage';
 import type { FlashType } from '../components/FlashMessage';
 import type { PropertyData, OwnerInfo } from '../components/PropertyCard';
-import { formatCleanAddress } from '../utils/formatAddress';
+import { formatCleanAddress, getUnitLabel } from '../utils/formatAddress';
 import {
   MapPin,
   Star,
@@ -311,28 +311,28 @@ const PropertyDetails: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column: Details, Occupancy & Amenities */}
           <div className="lg:col-span-2 space-y-8">
-            {/* Room Availability & Occupancy Breakdown */}
+            {/* Room Availability & Occupancy Breakdown (ADAPTIVE LABELS) */}
             <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-200/80 shadow-xs">
               <h2 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-                <Bed className="w-5 h-5 text-teal-600" /> Room & Occupancy Details
+                <Bed className="w-5 h-5 text-teal-600" /> {getUnitLabel(property.type).sectionTitle}
               </h2>
 
               <div className="grid grid-cols-3 gap-4 mb-6">
                 <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200/60 text-center">
                   <span className="text-xs font-semibold text-slate-500 block mb-1">Total Capacity</span>
-                  <span className="text-2xl font-black text-slate-900">{property.totalBeds || 10}</span>
-                  <span className="text-[10px] text-slate-400 block mt-0.5">Beds / Rooms</span>
+                  <span className="text-2xl font-black text-slate-900">{property.totalBeds ?? 1}</span>
+                  <span className="text-[10px] text-slate-400 block mt-0.5">{getUnitLabel(property.type).pluralUnitName}</span>
                 </div>
 
                 <div className="bg-emerald-50 p-4 rounded-2xl border border-emerald-200/60 text-center">
-                  <span className="text-xs font-semibold text-emerald-700 block mb-1">Available Beds</span>
-                  <span className="text-2xl font-black text-emerald-900">{property.availableBeds || 6}</span>
+                  <span className="text-xs font-semibold text-emerald-700 block mb-1">Available {getUnitLabel(property.type).pluralUnitName}</span>
+                  <span className="text-2xl font-black text-emerald-900">{property.availableBeds ?? property.totalBeds ?? 1}</span>
                   <span className="text-[10px] text-emerald-600 block mt-0.5">Vacant Now</span>
                 </div>
 
                 <div className="bg-amber-50 p-4 rounded-2xl border border-amber-200/60 text-center">
-                  <span className="text-xs font-semibold text-amber-800 block mb-1">Occupied Beds</span>
-                  <span className="text-2xl font-black text-amber-900">{property.occupiedBeds || 4}</span>
+                  <span className="text-xs font-semibold text-amber-800 block mb-1">Occupied {getUnitLabel(property.type).pluralUnitName}</span>
+                  <span className="text-2xl font-black text-amber-900">{property.occupiedBeds ?? 0}</span>
                   <span className="text-[10px] text-amber-700 block mt-0.5">Currently Filled</span>
                 </div>
               </div>
@@ -342,26 +342,22 @@ const PropertyDetails: React.FC = () => {
                 <div className="flex items-center justify-between text-xs font-bold text-slate-600 mb-1.5">
                   <span>Occupancy Rate</span>
                   <span>
-                    {Math.round(
-                      ((property.occupiedBeds || 4) / (property.totalBeds || 10)) * 100
-                    )}
+                    {(property.totalBeds ?? 1) > 0
+                      ? Math.round(((property.occupiedBeds ?? 0) / (property.totalBeds ?? 1)) * 100)
+                      : 0}
                     % Occupied
                   </span>
                 </div>
                 <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden flex">
                   <div
                     style={{
-                      width: `${Math.round(
-                        ((property.occupiedBeds || 4) / (property.totalBeds || 10)) * 100
-                      )}%`,
+                      width: `${(property.totalBeds ?? 1) > 0 ? Math.round(((property.occupiedBeds ?? 0) / (property.totalBeds ?? 1)) * 100) : 0}%`,
                     }}
                     className="bg-amber-500 h-full rounded-l-full"
                   ></div>
                   <div
                     style={{
-                      width: `${100 - Math.round(
-                        ((property.occupiedBeds || 4) / (property.totalBeds || 10)) * 100
-                      )}%`,
+                      width: `${100 - ((property.totalBeds ?? 1) > 0 ? Math.round(((property.occupiedBeds ?? 0) / (property.totalBeds ?? 1)) * 100) : 0)}%`,
                     }}
                     className="bg-emerald-500 h-full rounded-r-full"
                   ></div>
@@ -519,9 +515,9 @@ const PropertyDetails: React.FC = () => {
                               />
                             </button>
                           ))}
-                          <span className="text-xs font-bold text-amber-900 ml-2 bg-amber-100 px-2.5 py-1 rounded-lg">
+                          {/* <span className="text-xs font-bold text-amber-900 ml-2 bg-amber-100 px-2.5 py-1 rounded-lg">
                             {hoverRating || ratingInput} / 5 Stars
-                          </span>
+                          </span> */}
                         </div>
                       </div>
 

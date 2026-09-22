@@ -4,6 +4,7 @@ import FlashMessage from './FlashMessage';
 import type { FlashType } from './FlashMessage';
 import type { PropertyData } from './PropertyCard';
 import { X, Upload, Save, Building2, MapPin, IndianRupee, Layers, CheckCircle2 } from 'lucide-react';
+import { getUnitLabel } from '../utils/formatAddress';
 
 interface EditPropertyModalProps {
   isOpen: boolean;
@@ -25,9 +26,9 @@ const EditPropertyModal: React.FC<EditPropertyModalProps> = ({ isOpen, property,
     price: '',
     deposit: '',
     maintenance: '',
-    totalBeds: '10',
-    availableBeds: '6',
-    occupiedBeds: '4',
+    totalBeds: '1',
+    availableBeds: '1',
+    occupiedBeds: '0',
     description: '',
   });
 
@@ -50,9 +51,9 @@ const EditPropertyModal: React.FC<EditPropertyModalProps> = ({ isOpen, property,
         price: property.price ? String(property.price) : '',
         deposit: (property as any).deposit ? String((property as any).deposit) : '0',
         maintenance: (property as any).maintenance ? String((property as any).maintenance) : '0',
-        totalBeds: (property as any).totalBeds ? String((property as any).totalBeds) : '10',
-        availableBeds: (property as any).availableBeds ? String((property as any).availableBeds) : '6',
-        occupiedBeds: (property as any).occupiedBeds ? String((property as any).occupiedBeds) : '4',
+        totalBeds: (property as any).totalBeds !== undefined ? String((property as any).totalBeds) : '1',
+        availableBeds: (property as any).availableBeds !== undefined ? String((property as any).availableBeds) : String((property as any).totalBeds || 1),
+        occupiedBeds: (property as any).occupiedBeds !== undefined ? String((property as any).occupiedBeds) : '0',
         description: (property as any).description || '',
       });
 
@@ -166,9 +167,9 @@ const EditPropertyModal: React.FC<EditPropertyModalProps> = ({ isOpen, property,
         price: Number(formData.price),
         deposit: Number(formData.deposit || 0),
         maintenance: Number(formData.maintenance || 0),
-        totalBeds: Number(formData.totalBeds || 10),
-        availableBeds: Number(formData.availableBeds || 6),
-        occupiedBeds: Number(formData.occupiedBeds || 4),
+        totalBeds: Number(formData.totalBeds || 1),
+        availableBeds: Number(formData.availableBeds !== '' ? formData.availableBeds : (formData.totalBeds || 1)),
+        occupiedBeds: Number(formData.occupiedBeds || 0),
         images: images,
         amenities: amenities,
       };
@@ -438,17 +439,20 @@ const EditPropertyModal: React.FC<EditPropertyModalProps> = ({ isOpen, property,
               </div>
             </div>
 
-            {/* SECTION 5: OCCUPANCY & CAPACITY */}
+            {/* SECTION 5: OCCUPANCY & CAPACITY (ADAPTIVE LABELS) */}
             <div className="space-y-4">
               <h3 className="text-xs font-bold text-teal-800 uppercase tracking-wider flex items-center gap-1.5 pb-2 border-b border-slate-100">
-                <Layers className="w-4 h-4 text-teal-600" /> 5. Occupancy & Unit Capacity
+                <Layers className="w-4 h-4 text-teal-600" /> 5. {getUnitLabel(formData.type).sectionTitle}
               </h3>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Total Rooms/Beds</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Total {getUnitLabel(formData.type).pluralUnitName}
+                  </label>
                   <input
                     type="number"
+                    min="1"
                     value={formData.totalBeds}
                     onChange={(e) => setFormData({ ...formData, totalBeds: e.target.value })}
                     className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-teal-600"
@@ -456,9 +460,12 @@ const EditPropertyModal: React.FC<EditPropertyModalProps> = ({ isOpen, property,
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Available Beds 🟢</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Available {getUnitLabel(formData.type).pluralUnitName} 🟢
+                  </label>
                   <input
                     type="number"
+                    min="0"
                     value={formData.availableBeds}
                     onChange={(e) => setFormData({ ...formData, availableBeds: e.target.value })}
                     className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-teal-600"
@@ -466,9 +473,12 @@ const EditPropertyModal: React.FC<EditPropertyModalProps> = ({ isOpen, property,
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Occupied Beds 🔴</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Occupied {getUnitLabel(formData.type).pluralUnitName} 🔴
+                  </label>
                   <input
                     type="number"
+                    min="0"
                     value={formData.occupiedBeds}
                     onChange={(e) => setFormData({ ...formData, occupiedBeds: e.target.value })}
                     className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-teal-600"

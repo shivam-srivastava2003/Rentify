@@ -96,15 +96,15 @@ const propertySchema = new mongoose.Schema(
     },
     totalBeds: {
       type: Number,
-      default: 10,
+      default: 1,
     },
     availableBeds: {
       type: Number,
-      default: 6,
+      default: 1,
     },
     occupiedBeds: {
       type: Number,
-      default: 4,
+      default: 0,
     },
     rating: {
       type: Number,
