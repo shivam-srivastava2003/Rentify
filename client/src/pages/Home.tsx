@@ -49,11 +49,8 @@ const Home: React.FC = () => {
                 <div className="flex items-center gap-2 text-slate-700 font-semibold text-sm">
                   <MapPin className="w-4 h-4 text-teal-600 flex-shrink-0" />
                   <select disabled className="bg-transparent w-full focus:outline-none cursor-not-allowed">
-                    <option>Bengaluru, KA</option>
-                    <option>Mumbai, MH</option>
                     <option>Delhi NCR</option>
-                    <option>Hyderabad, TS</option>
-                    <option>Pune, MH</option>
+                    
                   </select>
                 </div>
               </div>
@@ -101,11 +98,11 @@ const Home: React.FC = () => {
           {/* Quick Stats */}
           <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto pt-8 border-t border-slate-800/80">
             <div>
-              <div className="text-3xl font-extrabold text-white">10,000+</div>
+              <div className="text-3xl font-extrabold text-white">1,000+</div>
               <div className="text-xs text-teal-200/80 font-medium mt-1">Verified Rooms</div>
             </div>
             <div>
-              <div className="text-3xl font-extrabold text-white">50+</div>
+              <div className="text-3xl font-extrabold text-white">10+</div>
               <div className="text-xs text-teal-200/80 font-medium mt-1">Popular Cities</div>
             </div>
             <div>

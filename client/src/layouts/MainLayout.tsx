@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import UserProfileBar from '../components/UserProfileBar';
 import ChatbotWidget from '../components/ChatbotWidget';
+import Footer from '../components/Footer';
 
 const MainLayout: React.FC = () => {
   return (
@@ -13,10 +14,7 @@ const MainLayout: React.FC = () => {
         <Outlet />
       </main>
       <ChatbotWidget />
-      <footer className="bg-slate-950 text-slate-400 py-12 text-center mt-auto border-t border-slate-800 text-xs">
-        <p>&copy; {new Date().getFullYear()} Rentify Platform. All rights reserved.</p>
-        <p className="text-slate-500 mt-1">Phase 2 Live Property Discovery & User Bar</p>
-      </footer>
+      <Footer />
     </div>
   );
 };

@@ -17,7 +17,7 @@ const Register: React.FC = () => {
     email: '',
     phone: '',
     gender: 'Male',
-    city: 'Bengaluru',
+    city: 'Gurugram',
     password: '',
     confirmPassword: '',
   });
@@ -282,6 +282,8 @@ const Register: React.FC = () => {
                     <option value="Hyderabad">Hyderabad</option>
                     <option value="Pune">Pune</option>
                     <option value="Chennai">Chennai</option>
+                    <option value="Noida">Noida</option>
+                    <option value="Gurugram">Gurugram</option>
                     <option value="Other">Other City</option>
                   </select>
                 </div>

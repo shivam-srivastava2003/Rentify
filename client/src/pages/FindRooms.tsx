@@ -9,7 +9,7 @@ const FindRooms: React.FC = () => {
   const { currentUser } = useAuth();
   
   // Default filter to user's preferred city or 'Bengaluru'
-  const [selectedCity, setSelectedCity] = useState(currentUser?.city || 'Bengaluru');
+  const [selectedCity, setSelectedCity] = useState(currentUser?.city || 'Gurugram');
   const [selectedType, setSelectedType] = useState('All');
   const [availabilityFilter, setAvailabilityFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
@@ -95,6 +95,8 @@ const FindRooms: React.FC = () => {
                 <option value="Delhi NCR">Delhi NCR</option>
                 <option value="Hyderabad">Hyderabad</option>
                 <option value="Pune">Pune</option>
+                <option value="Gurugram">Gurugram</option>
+                <option value="Noida">Noida</option>
               </select>
             </div>
 

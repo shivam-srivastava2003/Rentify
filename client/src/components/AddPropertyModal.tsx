@@ -16,7 +16,7 @@ const AddPropertyModal: React.FC<AddPropertyModalProps> = ({ isOpen, onClose, on
     title: '',
     type: 'PG',
     gender: 'Boys PG',
-    city: 'Bengaluru',
+    city: 'Gurugram',
     sector: '',
     street: '',
     country: 'India',
@@ -238,7 +238,6 @@ const AddPropertyModal: React.FC<AddPropertyModalProps> = ({ isOpen, onClose, on
                     className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-teal-600 font-semibold"
                   >
                     <option value="PG">Boys/Girls PG</option>
-                    <option value="Single Room">Single Private Room</option>
                     <option value="Shared Room">Shared Room</option>
                     <option value="1BHK Flat">1BHK Apartment</option>
                     <option value="Studio">Studio Apartment</option>
@@ -383,6 +382,8 @@ const AddPropertyModal: React.FC<AddPropertyModalProps> = ({ isOpen, onClose, on
                     <option value="Hyderabad">Hyderabad</option>
                     <option value="Pune">Pune</option>
                     <option value="Chennai">Chennai</option>
+                    <option value="Noida">Noida</option>
+                    <option value="Gurugram">Gurugram</option>
                   </select>
                 </div>
 
