@@ -1,9 +1,10 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
+import asyncHandler from '../middleware/asyncHandler';
 
 // @desc    Forward chatbot payload to Make.com Webhook URL configured in .env
 // @route   POST /api/chat/webhook
 // @access  Public
-export const handleMakeWebhook = async (req: Request, res: Response) => {
+export const handleMakeWebhook = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
   try {
     const webhookUrl = process.env.MAKE_WEBHOOK_URL;
 
@@ -58,4 +59,4 @@ export const handleMakeWebhook = async (req: Request, res: Response) => {
       reply: `Error communicating with Make.com webhook: ${error.message}. Please verify your MAKE_WEBHOOK_URL in server/.env.`,
     });
   }
-};
+});
