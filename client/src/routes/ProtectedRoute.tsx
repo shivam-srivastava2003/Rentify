@@ -26,7 +26,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles }) => {
     // Redirect based on role
     if (role === 'USER') return <Navigate to="/user/dashboard" replace />;
     if (role === 'OWNER') return <Navigate to="/owner/dashboard" replace />;
-    if (role === 'ADMIN') return <Navigate to="/admin/dashboard" replace />;
+    if (role === 'ADMIN') return <Navigate to="/shisri1207/admin/dashboard" replace />;
     
     return <Navigate to="/" replace />; // Fallback
   }

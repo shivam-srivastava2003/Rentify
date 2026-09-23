@@ -128,6 +128,9 @@ const Footer: React.FC = () => {
               <span className="bg-slate-900 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-800 flex items-center gap-1">
                 <MapPin className="w-3 h-3 text-teal-400" /> Pune
               </span>
+              <span className="bg-slate-900 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-800 flex items-center gap-1">
+                <MapPin className="w-3 h-3 text-teal-400" /> Gurugram
+              </span>
             </div>
           </div>
 

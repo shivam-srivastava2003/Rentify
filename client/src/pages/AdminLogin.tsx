@@ -41,7 +41,7 @@ const AdminLogin: React.FC = () => {
 
         login(user, response.data.token);
         setFlash({ type: 'success', message: 'Admin authentication successful.' });
-        setTimeout(() => navigate('/admin/dashboard'), 500);
+        setTimeout(() => navigate('/shisri1207/admin/dashboard'), 500);
       }
     } catch (err: any) {
       setFlash({

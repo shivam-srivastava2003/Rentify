@@ -18,7 +18,7 @@ const Navbar: React.FC = () => {
   };
 
   const getDashboardLink = () => {
-    if (role === 'ADMIN') return '/admin/dashboard';
+    if (role === 'ADMIN') return '/shisri1207/admin/dashboard';
     if (role === 'OWNER') return '/owner/dashboard';
     return '/user/dashboard';
   };

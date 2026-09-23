@@ -157,7 +157,7 @@ const Settings: React.FC = () => {
 
   const getProfileLink = () => {
     if (role === 'OWNER') return '/owner/profile';
-    if (role === 'ADMIN') return '/admin/dashboard';
+    if (role === 'ADMIN') return '/shisri1207/admin/dashboard';
     return '/user/profile';
   };
 

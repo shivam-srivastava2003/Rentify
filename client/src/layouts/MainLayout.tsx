@@ -1,20 +1,27 @@
 import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import AdminNavbar from '../components/AdminNavbar';
 import UserProfileBar from '../components/UserProfileBar';
 import ChatbotWidget from '../components/ChatbotWidget';
 import Footer from '../components/Footer';
+import { useAuth } from '../context/AuthContext';
 
 const MainLayout: React.FC = () => {
+  const location = useLocation();
+  const { role } = useAuth();
+
+  const isAdminPage = location.pathname.includes('/admin') || role === 'ADMIN';
+
   return (
     <div className="min-h-screen flex flex-col bg-slate-50">
-      <Navbar />
-      <UserProfileBar />
+      {isAdminPage ? <AdminNavbar /> : <Navbar />}
+      {!isAdminPage && <UserProfileBar />}
       <main className="flex-grow">
         <Outlet />
       </main>
       <ChatbotWidget />
-      <Footer />
+      {!isAdminPage && <Footer />}
     </div>
   );
 };

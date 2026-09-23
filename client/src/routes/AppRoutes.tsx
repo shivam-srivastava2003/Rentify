@@ -64,20 +64,20 @@ const AppRoutes: React.FC = () => {
           element={isAuthenticated ? <Navigate to={`/${role?.toLowerCase()}/dashboard`} replace /> : <Register />}
         />
         <Route
-          path="admin"
+          path="shisri1207/admin"
           element={
             isAuthenticated && role === 'ADMIN' ? (
-              <Navigate to="/admin/dashboard" replace />
+              <Navigate to="/shisri1207/admin/dashboard" replace />
             ) : (
               <AdminLogin />
             )
           }
         />
         <Route
-          path="admin/login"
+          path="shisri1207/admin/login"
           element={
-            isAuthenticated ? (
-              <Navigate to={`/${role?.toLowerCase()}/dashboard`} replace />
+            isAuthenticated && role === 'ADMIN' ? (
+              <Navigate to="/shisri1207/admin/dashboard" replace />
             ) : (
               <AdminLogin />
             )
@@ -106,7 +106,8 @@ const AppRoutes: React.FC = () => {
 
         {/* Admin Routes */}
         <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
-          <Route path="admin/dashboard" element={<AdminDashboard />} />
+          <Route path="shisri1207/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="shisri1207/admin/profile" element={<AdminDashboard initialTab="profile" />} />
         </Route>
 
         {/* Catch all */}

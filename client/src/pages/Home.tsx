@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Logo from '../components/Logo';
 import heroImg from '../assets/hero.jpg';
 import authImg from '../assets/auth.jpg';
 import { Search, MapPin, Building2, ShieldCheck, Sparkles, ArrowRight, KeyRound, Users2, Star } from 'lucide-react';
@@ -277,52 +276,7 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* FOOTER */}
-      <footer className="bg-slate-950 text-slate-400 py-16 border-t border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
-            <div>
-              <Logo light size="md" className="mb-4" />
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Rentify is India's next-generation Room and PG finding ecosystem designed for students, working professionals, and property managers.
-              </p>
-            </div>
-            <div>
-              <h4 className="text-white text-sm font-bold uppercase tracking-wider mb-4">Popular Cities</h4>
-              <ul className="space-y-2 text-xs">
-                <li><span className="hover:text-white cursor-pointer">Bengaluru Rooms</span></li>
-                <li><span className="hover:text-white cursor-pointer">Mumbai PGs</span></li>
-                <li><span className="hover:text-white cursor-pointer">Delhi NCR Rentals</span></li>
-                <li><span className="hover:text-white cursor-pointer">Hyderabad Hostels</span></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-white text-sm font-bold uppercase tracking-wider mb-4">Company</h4>
-              <ul className="space-y-2 text-xs">
-                <li><Link to="/" className="hover:text-white">About Us</Link></li>
-                <li><Link to="/login" className="hover:text-white">Sign In</Link></li>
-                <li><Link to="/register" className="hover:text-white">Register</Link></li>
-                <li><Link to="/admin/login" className="hover:text-white">Admin Portal</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-white text-sm font-bold uppercase tracking-wider mb-4">Phase 1 Status</h4>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Phase 1 complete: Authentication, RBAC (User / Owner / Admin), and Core Platform Architecture initialized.
-              </p>
-            </div>
-          </div>
-
-          <div className="pt-8 border-t border-slate-900 flex flex-col md:flex-row items-center justify-between text-xs text-slate-500 gap-4">
-            <p>&copy; {new Date().getFullYear()} Rentify. All rights reserved.</p>
-            <div className="flex space-x-6">
-              <span>Privacy Policy</span>
-              <span>Terms of Service</span>
-              <span>Security</span>
-            </div>
-          </div>
-        </div>
-      </footer>
+      
     </div>
   );
 };

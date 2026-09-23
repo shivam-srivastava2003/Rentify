@@ -57,7 +57,7 @@ const Login: React.FC = () => {
 
         setTimeout(() => {
           if (user.role === 'ADMIN') {
-            navigate('/admin/dashboard');
+            navigate('/shisri1207/admin/dashboard');
           } else if (user.role === 'OWNER') {
             navigate('/owner/dashboard');
           } else {
