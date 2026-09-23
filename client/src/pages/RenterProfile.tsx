@@ -305,6 +305,8 @@ const RenterProfile: React.FC = () => {
                     <option value="Delhi NCR">Delhi NCR</option>
                     <option value="Hyderabad">Hyderabad</option>
                     <option value="Pune">Pune</option>
+                    <option value="Gurugram">Gurugram</option>
+                    <option value="Noida">Noida</option>
                   </select>
                 </div>
               </div>
