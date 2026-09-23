@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -40,7 +40,7 @@ app.use(
   })
 );
 
-// 3. Body Parsers with limits
+// 3. Body Parsers with payload limits
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(cookieParser());
@@ -51,14 +51,30 @@ app.use(sanitizeNoSql);
 // 5. Global API Rate Limiter
 app.use('/api', apiLimiter);
 
-// 6. Application Routes
+// 6. Application API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/properties', propertyRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/chat', chatRoutes);
 
+// Health check endpoint
 app.get('/api/health', (req: Request, res: Response) => {
   res.status(200).json({ success: true, message: 'Server is running safely with security headers & rate limiting' });
+});
+
+// 7. 404 Route Handler
+app.use((req: Request, res: Response) => {
+  res.status(404).json({ success: false, message: 'API route not found' });
+});
+
+// 8. Global Error Handler Middleware
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  console.error('Unhandled Server Error:', err);
+  const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+  res.status(statusCode).json({
+    success: false,
+    message: err.message || 'Internal Server Error',
+  });
 });
 
 const PORT = process.env.PORT || 5000;
