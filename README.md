@@ -190,6 +190,16 @@ Open your browser at `http://localhost:5173`.
 
 ---
 
+## 👤 Author
+
+**Shivam Kumar**  
+*Full Stack Web Developer | AI Agent & Automation Engineer*
+
+- **GitHub**: [@shivam-srivastava2003](https://github.com/shivam-srivastava2003)
+
+---
+
 ## 🛡️ License
 
 Distributed under the MIT License. See `LICENSE` for more information.
+
