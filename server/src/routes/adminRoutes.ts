@@ -11,12 +11,14 @@ import {
 } from '../controllers/adminController';
 import { protect, authorize } from '../middleware/authMiddleware';
 import { validateBody } from '../middleware/validateMiddleware';
+import { adminLimiter } from '../middleware/securityMiddleware';
 import { adminDeleteSchema } from '../schemas/validationSchemas';
 
 const router = express.Router();
 
 router.use(protect);
 router.use(authorize('ADMIN'));
+router.use(adminLimiter);
 
 router.get('/stats', getAdminStats);
 router.get('/owners', getAdminOwners);

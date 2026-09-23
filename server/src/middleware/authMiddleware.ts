@@ -18,20 +18,32 @@ export const protect = async (req: Request, res: Response, next: NextFunction) =
   if (token) {
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as DecodedToken;
-      req.user = await User.findById(decoded.userId).select('-password');
+      const user = await User.findById(decoded.userId).select('-password');
+
+      if (!user) {
+        res.status(401).json({ success: false, message: 'Not authorized. User account no longer exists.' });
+        return;
+      }
+
+      if (user.isActive === false) {
+        res.status(403).json({ success: false, message: 'Your account has been deactivated or disabled by administrator.' });
+        return;
+      }
+
+      req.user = user;
       next();
     } catch (error) {
-      res.status(401).json({ success: false, message: 'Not authorized, token failed' });
+      res.status(401).json({ success: false, message: 'Not authorized. Session token invalid or expired.' });
     }
   } else {
-    res.status(401).json({ success: false, message: 'Not authorized, no token' });
+    res.status(401).json({ success: false, message: 'Not authorized. No session token provided.' });
   }
 };
 
 export const authorize = (...roles: string[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
     if (!req.user || !roles.includes(req.user.role)) {
-      res.status(403).json({ success: false, message: 'Not authorized, insufficient permissions' });
+      res.status(403).json({ success: false, message: 'Access forbidden. Insufficient administrative permissions.' });
       return;
     }
     next();

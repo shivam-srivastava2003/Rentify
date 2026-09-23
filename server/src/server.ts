@@ -7,6 +7,7 @@ import authRoutes from './routes/authRoutes';
 import propertyRoutes from './routes/propertyRoutes';
 import adminRoutes from './routes/adminRoutes';
 import chatRoutes from './routes/chatRoutes';
+import { helmetSecurity, apiLimiter, sanitizeNoSql } from './middleware/securityMiddleware';
 
 dotenv.config();
 
@@ -14,6 +15,10 @@ connectDB();
 
 const app = express();
 
+// 1. Security Headers via Helmet
+app.use(helmetSecurity);
+
+// 2. CORS Configuration
 const allowedOrigins = [
   process.env.CLIENT_URL,
   'http://localhost:5173',
@@ -25,11 +30,9 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps, curl, or server-to-server)
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        // Fallback allow origin for development flexibility
         callback(null, true);
       }
     },
@@ -37,19 +40,25 @@ app.use(
   })
 );
 
-// Increased payload limits for image uploads (base64)
+// 3. Body Parsers with limits
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(cookieParser());
 
-// Routes
+// 4. Global NoSQL Injection Sanitizer
+app.use(sanitizeNoSql);
+
+// 5. Global API Rate Limiter
+app.use('/api', apiLimiter);
+
+// 6. Application Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/properties', propertyRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/chat', chatRoutes);
 
 app.get('/api/health', (req: Request, res: Response) => {
-  res.status(200).json({ success: true, message: 'Server is running' });
+  res.status(200).json({ success: true, message: 'Server is running safely with security headers & rate limiting' });
 });
 
 const PORT = process.env.PORT || 5000;

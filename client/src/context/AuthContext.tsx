@@ -17,6 +17,7 @@ export interface User {
   unitCount?: string;
   gender?: string;
   avatar?: string;
+  isActive?: boolean;
 }
 
 interface AuthContextType {
@@ -50,6 +51,26 @@ axios.interceptors.request.use(
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Setup response interceptor to auto-purge session on HTTP 401 / 403
+  useEffect(() => {
+    const interceptor = axios.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+          // If unauthenticated or token expired, immediately wipe client session
+          localStorage.removeItem('rentify_token');
+          sessionStorage.clear();
+          setCurrentUser(null);
+        }
+        return Promise.reject(error);
+      }
+    );
+
+    return () => {
+      axios.interceptors.response.eject(interceptor);
+    };
+  }, []);
 
   useEffect(() => {
     const fetchMe = async () => {
