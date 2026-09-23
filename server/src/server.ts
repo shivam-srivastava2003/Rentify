@@ -8,6 +8,7 @@ import propertyRoutes from './routes/propertyRoutes';
 import adminRoutes from './routes/adminRoutes';
 import chatRoutes from './routes/chatRoutes';
 import { helmetSecurity, apiLimiter, sanitizeNoSql } from './middleware/securityMiddleware';
+import errorHandler from './middleware/errorMiddleware';
 
 dotenv.config();
 
@@ -67,15 +68,8 @@ app.use((req: Request, res: Response) => {
   res.status(404).json({ success: false, message: 'API route not found' });
 });
 
-// 8. Global Error Handler Middleware
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  console.error('Unhandled Server Error:', err);
-  const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
-  res.status(statusCode).json({
-    success: false,
-    message: err.message || 'Internal Server Error',
-  });
-});
+// 8. Centralized Global Error Handler Middleware
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
