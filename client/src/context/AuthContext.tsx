@@ -55,8 +55,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const fetchMe = async () => {
       try {
         const response = await axios.get('/auth/me');
-        if (response.data.success) {
+        if (response.data && response.data.success) {
           setCurrentUser(response.data.data);
+        } else {
+          localStorage.removeItem('rentify_token');
+          setCurrentUser(null);
         }
       } catch (error) {
         localStorage.removeItem('rentify_token');
@@ -72,6 +75,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = (user: User, token?: string) => {
     if (token) {
       localStorage.setItem('rentify_token', token);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     }
     setCurrentUser(user);
   };
@@ -84,9 +88,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await axios.post('/auth/logout');
     } catch (error) {
-      console.error('Logout failed', error);
+      console.error('Logout API call error', error);
     } finally {
       localStorage.removeItem('rentify_token');
+      sessionStorage.clear();
+      delete axios.defaults.headers.common['Authorization'];
       setCurrentUser(null);
     }
   };

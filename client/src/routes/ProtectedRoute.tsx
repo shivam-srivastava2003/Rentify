@@ -8,7 +8,7 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles }) => {
-  const { isAuthenticated, role, isLoading } = useAuth();
+  const { isAuthenticated, currentUser, role, isLoading } = useAuth();
   const location = useLocation();
 
   if (isLoading) {
@@ -20,7 +20,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles }) => {
   }
 
   // If user is logged out or not authenticated when accessing any protected URL directly
-  if (!isAuthenticated) {
+  if (!isAuthenticated || !currentUser) {
     if (location.pathname.startsWith('/shisri1207/admin')) {
       return <Navigate to="/shisri1207/admin/login" state={{ from: location.pathname }} replace />;
     }
