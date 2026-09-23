@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import Logo from '../components/Logo';
 import FlashMessage from '../components/FlashMessage';
 import type { FlashType } from '../components/FlashMessage';
 import heroImg from '../assets/hero.jpg';
+import { clientRegisterSchema, validateForm } from '../utils/validation';
 import { User, Building, Lock, Mail, Phone, CheckCircle2, ArrowRight, ShieldCheck, Eye, EyeOff } from 'lucide-react';
 
 const Register: React.FC = () => {
@@ -26,6 +27,7 @@ const Register: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -44,24 +46,26 @@ const Register: React.FC = () => {
       return;
     }
 
-    if (formData.password.length < 6) {
-      setFlash({ type: 'error', message: 'Password must be at least 6 characters long.' });
+    const payload = {
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      gender: formData.gender,
+      city: formData.city,
+      password: formData.password,
+      role,
+    };
+
+    // Client-side Zod Validation
+    const validation = validateForm(clientRegisterSchema, payload);
+    if (!validation.success) {
+      setFlash({ type: 'error', message: validation.error });
       return;
     }
 
     setLoading(true);
 
     try {
-      const payload = {
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        gender: formData.gender,
-        city: formData.city,
-        password: formData.password,
-        role,
-      };
-
       const response = await axios.post('/auth/register', payload);
 
       if (response.data.success) {
@@ -69,11 +73,13 @@ const Register: React.FC = () => {
         login(user, response.data.token);
         setFlash({ type: 'success', message: response.data.message || 'Account created successfully!' });
 
+        const fromPath = typeof location.state?.from === 'string' ? location.state.from : location.state?.from?.pathname;
+
         setTimeout(() => {
           if (user.role === 'OWNER') {
-            navigate('/owner/dashboard');
+            navigate(fromPath && (fromPath.startsWith('/owner') || fromPath === '/settings') ? fromPath : '/owner/dashboard');
           } else {
-            navigate('/user/dashboard');
+            navigate(fromPath && (fromPath.startsWith('/user') || fromPath === '/settings' || fromPath === '/find-rooms') ? fromPath : '/user/dashboard');
           }
         }, 800);
       }

@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import Logo from '../components/Logo';
 import FlashMessage from '../components/FlashMessage';
 import type { FlashType } from '../components/FlashMessage';
 import authImg from '../assets/auth.jpg';
+import { clientLoginSchema, validateForm } from '../utils/validation';
 import {
   Lock,
   Mail,
@@ -39,11 +40,20 @@ const Login: React.FC = () => {
   const [forgotLoading, setForgotLoading] = useState(false);
 
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFlash(null);
+
+    // Client-side Zod Schema Validation
+    const validation = validateForm(clientLoginSchema, { email, password });
+    if (!validation.success) {
+      setFlash({ type: 'error', message: validation.error });
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -55,13 +65,15 @@ const Login: React.FC = () => {
 
         setFlash({ type: 'success', message: response.data.message || 'Login successful!' });
 
+        const fromPath = typeof location.state?.from === 'string' ? location.state.from : location.state?.from?.pathname;
+
         setTimeout(() => {
           if (user.role === 'ADMIN') {
-            navigate('/shisri1207/admin/dashboard');
+            navigate(fromPath && fromPath.startsWith('/shisri1207/admin') ? fromPath : '/shisri1207/admin/dashboard');
           } else if (user.role === 'OWNER') {
-            navigate('/owner/dashboard');
+            navigate(fromPath && (fromPath.startsWith('/owner') || fromPath === '/settings') ? fromPath : '/owner/dashboard');
           } else {
-            navigate('/user/dashboard');
+            navigate(fromPath && (fromPath.startsWith('/user') || fromPath === '/settings' || fromPath === '/find-rooms') ? fromPath : '/user/dashboard');
           }
         }, 500);
       }

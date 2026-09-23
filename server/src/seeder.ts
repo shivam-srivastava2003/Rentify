@@ -8,24 +8,24 @@ connectDB();
 
 const importData = async () => {
   try {
-    // Check if admin already exists
-    const adminExists = await User.findOne({ email: 'admin@roomfinder.com' });
+    // Check if any admin user already exists in the database
+    const adminExists = await User.findOne({ role: 'ADMIN' });
     
     if (adminExists) {
-      console.log('Admin user already exists!');
+      console.log('An Administrator account already exists in database. Skipping seeding.');
       process.exit();
     }
 
     const adminUser = new User({
-      name: 'Admin User',
-      email: 'admin@roomfinder.com',
-      password: 'AdminPassword123!',
+      name: 'System Administrator',
+      email: process.env.INITIAL_ADMIN_EMAIL,
+      password: process.env.INITIAL_ADMIN_PASSWORD,
       role: 'ADMIN',
     });
 
     await adminUser.save();
 
-    console.log('Admin user created successfully!');
+    console.log('Initial administrator user created successfully!');
     process.exit();
   } catch (error) {
     console.error(`Error: ${error}`);

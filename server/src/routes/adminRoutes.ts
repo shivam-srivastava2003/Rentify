@@ -10,6 +10,8 @@ import {
   clearAllDeletionHistory,
 } from '../controllers/adminController';
 import { protect, authorize } from '../middleware/authMiddleware';
+import { validateBody } from '../middleware/validateMiddleware';
+import { adminDeleteSchema } from '../schemas/validationSchemas';
 
 const router = express.Router();
 
@@ -21,8 +23,8 @@ router.get('/owners', getAdminOwners);
 router.get('/owners/:id', getOwnerDetailsWithProperties);
 router.get('/renters', getAdminRenters);
 
-// Deletion & History Tracking Routes
-router.post('/delete-item', deleteItemByAdmin);
+// Deletion & History Tracking Routes with Zod validation
+router.post('/delete-item', validateBody(adminDeleteSchema), deleteItemByAdmin);
 router.get('/history', getAdminDeletionHistory);
 router.delete('/history/:id', deleteHistoryItem);
 router.delete('/history', clearAllDeletionHistory);

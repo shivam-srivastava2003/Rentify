@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import Logo from '../components/Logo';
 import FlashMessage from '../components/FlashMessage';
 import type { FlashType } from '../components/FlashMessage';
-import { ShieldAlert, Lock, Mail, ArrowRight, KeyRound, Eye, EyeOff } from 'lucide-react';
+import { clientLoginSchema, validateForm } from '../utils/validation';
+import { ShieldAlert, Lock, Mail, ArrowRight, Eye, EyeOff } from 'lucide-react';
 
 const AdminLogin: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -14,16 +15,20 @@ const AdminLogin: React.FC = () => {
   const [flash, setFlash] = useState<{ type: FlashType; message: string } | null>(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
-
-  const handlePrefillDemo = () => {
-    setEmail('admin@roomfinder.com');
-    setPassword('AdminPassword123!');
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFlash(null);
+
+    // Client-side Zod Schema Validation
+    const validation = validateForm(clientLoginSchema, { email, password });
+    if (!validation.success) {
+      setFlash({ type: 'error', message: validation.error });
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -41,7 +46,16 @@ const AdminLogin: React.FC = () => {
 
         login(user, response.data.token);
         setFlash({ type: 'success', message: 'Admin authentication successful.' });
-        setTimeout(() => navigate('/shisri1207/admin/dashboard'), 500);
+
+        const fromPath = typeof location.state?.from === 'string' ? location.state.from : location.state?.from?.pathname;
+
+        setTimeout(() => {
+          if (fromPath && fromPath.startsWith('/shisri1207/admin')) {
+            navigate(fromPath);
+          } else {
+            navigate('/shisri1207/admin/dashboard');
+          }
+        }, 500);
       }
     } catch (err: any) {
       setFlash({
@@ -66,21 +80,6 @@ const AdminLogin: React.FC = () => {
       </div>
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        {/* Quick Credentials Helper Box */}
-        <div className="bg-slate-900/90 border border-teal-500/30 rounded-2xl p-4 mb-4 text-center">
-          <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-teal-400 mb-1">
-            <KeyRound className="w-3.5 h-3.5" /> Seeded Admin Account
-          </div>
-          <p className="text-[11px] text-slate-400 mb-2">Email: <strong className="text-white">admin@roomfinder.com</strong> | Password: <strong className="text-white">AdminPassword123!</strong></p>
-          <button
-            type="button"
-            onClick={handlePrefillDemo}
-            className="text-[11px] font-bold text-teal-300 hover:text-white bg-teal-500/20 hover:bg-teal-500/30 px-3 py-1.5 rounded-lg border border-teal-500/40 transition-all"
-          >
-            Auto-fill Admin Credentials
-          </button>
-        </div>
-
         <div className="bg-slate-900 py-8 px-6 shadow-2xl rounded-3xl border border-slate-800 sm:px-10">
           {flash && (
             <FlashMessage
@@ -100,7 +99,7 @@ const AdminLogin: React.FC = () => {
                 <input
                   type="email"
                   required
-                  placeholder="admin@roomfinder.com"
+                  placeholder="admin@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-10 pr-4 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all placeholder:text-slate-500"

@@ -7,7 +7,7 @@ import type { PropertyData } from '../../components/PropertyCard';
 import AddPropertyModal from '../../components/AddPropertyModal';
 import EditPropertyModal from '../../components/EditPropertyModal';
 import OwnerPropertyDetailModal from '../../components/OwnerPropertyDetailModal';
-import { Building2, PlusCircle, MapPin, Mail, Sparkles, ArrowRight } from 'lucide-react';
+import { Building2, PlusCircle, Sparkles, ArrowRight } from 'lucide-react';
 
 const OwnerDashboard: React.FC = () => {
   const { currentUser } = useAuth();
@@ -69,25 +69,6 @@ const OwnerDashboard: React.FC = () => {
             <p className="text-slate-400 text-sm mt-1">
               Manage your room listings, track tenant inquiries, and update existing property details.
             </p>
-
-            <div className="mt-6 flex flex-wrap gap-4 text-xs text-slate-300 bg-slate-800/80 p-4 rounded-2xl w-fit border border-slate-700">
-              {currentUser?.businessName && (
-                <div className="flex items-center gap-1.5 font-bold text-amber-400">
-                  <Building2 className="w-4 h-4 text-amber-400" />
-                  <span>{currentUser.businessName}</span>
-                </div>
-              )}
-              {currentUser?.propertyLocation && (
-                <div className="flex items-center gap-1.5 border-l border-slate-700 pl-4">
-                  <MapPin className="w-3.5 h-3.5 text-teal-400" />
-                  <span>{currentUser.propertyLocation}</span>
-                </div>
-              )}
-              <div className="flex items-center gap-1.5 border-l border-slate-700 pl-4">
-                <Mail className="w-3.5 h-3.5 text-slate-400" />
-                <span>{currentUser?.email}</span>
-              </div>
-            </div>
           </div>
 
           <button
@@ -113,7 +94,7 @@ const OwnerDashboard: React.FC = () => {
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
           <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Active Locations</span>
           <p className="text-3xl font-black text-amber-500 mt-2">
-            {new Set(properties.map((p) => p.city)).size || (currentUser?.city ? 1 : 0)}
+            {new Set(properties.map((p) => p.city)).size || (currentUser?.city ? 0 : 0)}
           </p>
         </div>
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">

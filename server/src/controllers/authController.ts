@@ -104,23 +104,7 @@ export const loginUser = async (req: Request, res: Response) => {
     }
 
     const cleanEmail = email.trim().toLowerCase();
-    let user = (await User.findOne({ email: { $regex: new RegExp(`^${cleanEmail}$`, 'i') } })) as any;
-
-    // Auto-seed or fix Admin user if logging in with default admin credentials
-    if (cleanEmail === 'admin@roomfinder.com' && password === 'AdminPassword123!') {
-      if (!user) {
-        user = await User.create({
-          name: 'System Administrator',
-          email: 'admin@roomfinder.com',
-          password: 'AdminPassword123!',
-          role: 'ADMIN',
-        });
-      } else if (user.role !== 'ADMIN' || !(await user.matchPassword(password))) {
-        user.password = 'AdminPassword123!';
-        user.role = 'ADMIN';
-        user = await user.save();
-      }
-    }
+    const user = (await User.findOne({ email: { $regex: new RegExp(`^${cleanEmail}$`, 'i') } })) as any;
 
     if (user && (await user.matchPassword(password))) {
       const token = generateToken(res, user._id.toString());
